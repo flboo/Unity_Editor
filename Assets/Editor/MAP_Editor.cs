@@ -105,7 +105,7 @@ public class MAP_Editor : EditorWindow
         MAPTools_Utils.disableTileGizmo(showGizmos);
         MAPTools_Utils.addLayer("map_tile_map");
 
-        MAP_tileFunctions.cleanSceneOfBrushObjects();
+        MAP_brushFunctions.cleanSceneOfBrushObjects();
         string[] guids;
         guids = AssetDatabase.FindAssets("map_editor_Data");
         editorData = AssetDatabase.LoadAssetAtPath(AssetDatabase.GUIDToAssetPath(guids[0]), typeof(MAP_EditorData)) as MAP_EditorData;
@@ -428,8 +428,14 @@ public class MAP_Editor : EditorWindow
                 controlId = GUIUtility.GetControlID(FocusType.Passive);
                 updateSceneMousePosition();
                 checkTilePositionIsValid(sceneView.position);
-
+                MAP_sceneGizmoFunctions.drawBrushGizmo();
             }
+
+            //绘制编辑器进度条
+            MAP_editorSceneUI.drawToolUI(sceneView);
+
+
+
 
         }
     }
@@ -639,6 +645,27 @@ public class MAP_Editor : EditorWindow
                 _currentLayer = 1;
             }
         }
+    }
+
+    public static void setTileBrush(int index)
+    {
+
+        if (currentTileSetObjects[index] != null)
+        {
+            currentBrushIndex = index;
+            currentBrushType = eBrushTypes.standardBrush;
+            currentTile = currentTileSetObjects[index];
+            tileRotation = 0;
+            tileRotationX = 0;
+            MAP_brushFunctions.updateBrushTile();
+            selectTool = eToolIcons.brushTool;
+        }
+
+    }
+
+    private static void drawcustomBrushButtons(int index)
+    {
+
     }
 
 

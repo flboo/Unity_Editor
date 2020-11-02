@@ -76,7 +76,7 @@ public class MAP_brushFunctions : EditorWindow
             MAP_Editor.brushTile.transform.eulerAngles = new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0);
             MAP_Editor.brushTile.transform.parent = MAP_Editor.tileMapParent.transform;
             MAP_Editor.brushTile.transform.localScale = tileScale;
-            MAP_Editor.brushTile.name = Define.MAP_BRUSHTILE;
+            MAP_Editor.brushTile.name = Define.MAP_BRUSH_TILE;
             MAP_Editor.brushTile.hideFlags = HideFlags.HideAndDontSave;
             MAP_Editor.brushTile.isStatic = false;
 
@@ -98,7 +98,7 @@ public class MAP_brushFunctions : EditorWindow
         brushTilesInParent.Clear();
         foreach (Transform child in MAP_Editor.tileMapParent.transform)
         {
-            if (child.name == Define.MAP_BRUSHTILE)
+            if (child.name == Define.MAP_BRUSH_TILE)
             {
                 brushTilesInParent.Add(child.gameObject);
             }
@@ -118,7 +118,7 @@ public class MAP_brushFunctions : EditorWindow
             List<GameObject> destoryList = new List<GameObject>();
             foreach (Transform child in MAP_Editor.tileMapParent.transform)
             {
-                if (child.name == Define.MAP_BRUSHTILE)
+                if (child.name == Define.MAP_BRUSH_TILE)
                 {
                     destoryList.Add(child.gameObject);
                 }
