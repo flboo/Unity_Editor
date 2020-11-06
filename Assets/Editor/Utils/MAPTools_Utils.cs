@@ -9,7 +9,7 @@ public class MAPTools_Utils : MonoBehaviour
     public static void showUnityGrid(bool show)
     {
         Assembly editorAssembly = Assembly.GetAssembly(typeof(Editor));
-        Type annotationUtility = editorAssembly.GetType("UnityEditor.AnnotationUtility");
+        Type annotationUtility = editorAssembly.GetType(Define.UNITY_EDITOR_ANNOTATION_UTILITY);
         var property = annotationUtility.GetProperty("showGrid", BindingFlags.Static | BindingFlags.NonPublic);
         property.SetValue(null, show, null);
     }

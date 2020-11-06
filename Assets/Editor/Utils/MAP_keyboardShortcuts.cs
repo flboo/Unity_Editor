@@ -182,6 +182,46 @@ public class MAP_keyboardShortcuts : EditorWindow
                     }
                     break;
             }
+
+
+            if (!MAP_Editor.editorPreferences.useAlternativeKeyShortcuts)
+            {
+                switch (keyEvent.keyCode)
+                {
+                    case KeyCode.A:
+                        Event.current.Use();
+                        MAP_Editor.selectTool = eToolIcons.brushTool;
+                        break;
+                    case KeyCode.S:
+                        Event.current.Use();
+                        MAP_Editor.selectTool = eToolIcons.pickTool;
+                        break;
+                    case KeyCode.D:
+                        Event.current.Use();
+                        MAP_Editor.selectTool = eToolIcons.eraseTool;
+                        break;
+                }
+            }
+            else
+            {
+                switch (keyEvent.keyCode)
+                {
+                    case KeyCode.G:
+                        Event.current.Use();
+                        MAP_Editor.selectTool = eToolIcons.brushTool;
+                        break;
+                    case KeyCode.H:
+                        Event.current.Use();
+                        MAP_Editor.selectTool = eToolIcons.pickTool;
+                        break;
+                    case KeyCode.J:
+                        Event.current.Use();
+                        MAP_Editor.selectTool = eToolIcons.eraseTool;
+                        break;
+
+                }
+            }
+
         }
     }
 

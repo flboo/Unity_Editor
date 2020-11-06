@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
@@ -191,6 +192,29 @@ public class MAP_Editor : EditorWindow
         }
     }
 
+    //draw editor tool gui
+    void OnGUI()
+    {
+        if (!Application.isPlaying)
+        {
+            if (GameObject.Find(Define.MAP_EDITOR_OBJECT) == null)
+            {
+                setupGUI();
+            }
+            else
+            {
+                if (!checkForForzonMap())
+                {
+                    mainGUI();
+                }
+                else
+                {
+                    unFreezeMap();
+                }
+            }
+        }
+    }
+
     private static void setupGUI()
     {
         toolEnabled = false;
@@ -217,6 +241,36 @@ public class MAP_Editor : EditorWindow
         EditorGUILayout.EndVertical();
     }
 
+    void mainGUI()
+    {
+        if (Event.current != null)
+        {
+            MAP_keyboardShortcuts.checkKeyboardShortcuts(Event.current);
+            MAP_mouseShorcuts.checkMouseShortcuts(Event.current);
+            SceneView.RepaintAll();
+        }
+        EditorGUILayout.Space();
+        GUILayout.Label(editorData.mapEditorHeader);
+
+        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.BeginHorizontal();
+
+        toolEnabled = GUILayout.Toggle(toolEnabled, "Enable map", "Button", GUILayout.Height(30));
+
+        if (_toolEnabled != toolEnabled)
+        {
+            if (!toolEnabled)
+            {
+                showUI(true);
+                MAPTools_Utils.showUnityGrid(true);
+                MAP_tileFunctions.restoreIsolatedGridTiles();
+                MAP_tileFunctions.restoreIsolatedLayerTiles();
+                MAP_brushFunctions.cleanSceneOfBrushObjects();
+            }
+        }
+
+
+    }
 
     public static void importTileSets(bool fullRescan)
     {
@@ -434,36 +488,262 @@ public class MAP_Editor : EditorWindow
             //绘制编辑器进度条
             MAP_editorSceneUI.drawToolUI(sceneView);
 
+            MAP_keyboardShortcuts.checkKeyboardShortcuts(Event.current);
+            MAP_mouseShorcuts.checkMouseShortcuts(Event.current);
 
+            foreach (GameObject selected in selectTiles)
+            {
+                MAP_sceneGizmoFunctions.drawSceneGizmoCube(selected.transform.position, Vector3.one, Color.green);
+            }
 
+            switch (selectTool)
+            {
+                case eToolIcons.defaultTools:
+                    MAP_brushFunctions.destoryBrushTile();
+                    break;
+                case eToolIcons.brushTool:
+                    MAP_brushFunctions.createBrushTile();
+                    selectTiles.Clear();
+                    break;
+                case eToolIcons.pickTool:
+                    MAP_brushFunctions.destoryBrushTile();
+                    selectTiles.Clear();
+                    break;
+                case eToolIcons.eraseTool:
+                    MAP_brushFunctions.destoryBrushTile();
+                    selectTiles.Clear();
+                    break;
+                case eToolIcons.selectTool:
+                    MAP_brushFunctions.destoryBrushTile();
+                    break;
+                case eToolIcons.copyTool:
+                    MAP_customBrushFunctions.createCopyBrush(false);
+                    selectTool = eToolIcons.brushTool;
+                    break;
+                case eToolIcons.moveTool:
+                    MAP_customBrushFunctions.createCopyBrush(true);
+                    selectTool = eToolIcons.brushTool;
+                    break;
+                case eToolIcons.trashTool:
+                    MAP_tileFunctions.trashTiles();
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.customBrushTool:
+                    selectTool = previousSelectTool;
+                    MAP_customBrushFunctions.createCustomBrush();
+                    break;
+                case eToolIcons.showGizmos:
+                    showGizmos = !showGizmos;
+                    MAPTools_Utils.disableTileGizmo(showGizmos);
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.gridUpTool:
+                    if (Event.current.alt)
+                    {
+                        gridHeight += (globalScale * 0.25f);
+                    }
+                    else
+                    {
+                        gridHeight += globalScale * editorPreferences.gridLayerHeightScaler;
+                    }
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.gridDownTool:
+                    if (Event.current.alt)
+                    {
+                        gridHeight -= (globalScale * 0.25f);
+                    }
+                    else
+                    {
+                        gridHeight -= globalScale * editorPreferences.gridLayerHeightScaler;
+                    }
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.rotateTool:
+                    tileRotation += 90f;
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.rotateXTool:
+                    tileRotationX += 90f;
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.flipHorizontalTool:
+                    MAP_tileFunctions.flipHorizontal();
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.flipVerticalTool:
+                    MAP_tileFunctions.flipVertical();
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.isolateTool:
+                    MAP_tileFunctions.isolateTilesToggle();
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.isolateLayerTool:
+                    MAP_tileFunctions.isolateLayerToggle();
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.layerUp:
+                    currentLayer++;
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.layerDown:
+                    currentLayer--;
+                    selectTool = previousSelectTool;
+                    break;
+                case eToolIcons.refreshMap:
+                    Map_mapManagerFunctions.refreshMap();
+                    selectTool = previousSelectTool;
+                    break;
+            }
 
+            //check scebe view input for drawing  pixking etc
+
+            if (selectTool > eToolIcons.defaultTools)
+            {
+                if ((Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) &&
+                    Event.current.button == 0 &&
+                    Event.current.alt == false &&
+                    Event.current.shift == false &&
+                    Event.current.control == false &&
+                    allowTileRedraw)
+                {
+                    switch (selectTool)
+                    {
+                        case eToolIcons.brushTool:
+                            switch (currentBrushType)
+                            {
+                                case eBrushTypes.standardBrush:
+                                    addEraseTiles(false);
+                                    break;
+                                case eBrushTypes.customBrush:
+                                    if (currentTile.GetComponent<MAP_tileGizmo>())
+                                    {
+                                        addEraseTiles(false); // Custom brushes now work the same as normal tiles
+                                    }
+                                    else
+                                    {
+                                        if (!oldCustonBrushWarning)
+                                        {
+                                            oldCustonBrushWarning = true;
+                                            Debug.LogWarning("Please note: How custom brushes are created has been updated in YuME 1.1.2 and above. This is an old brush. We recommend recreating this using the new custom brush system for stability.");
+                                            Debug.LogWarning("To increase stability, UNDO has been disabled on OLD custom brushes. New custom brushes use the same system as normal tiles and can be un-done.");
+                                        }
+
+                                        MAP_customBrushFunctions.pasteCustomBrush(tilePosition); // for legacy custom brushes
+                                    }
+
+                                    break;
+                                case eBrushTypes.copyBrush:
+                                    MAP_customBrushFunctions.pasteCopyBrush(tilePosition);
+                                    break;
+                            }
+                            break;
+                        case eToolIcons.pickTool:
+                            MAP_tileFunctions.pickTile(tilePosition);
+                            break;
+                        case eToolIcons.eraseTool:
+                            addEraseTiles(true);
+                            break;
+                        case eToolIcons.selectTool:
+                            MAP_tileFunctions.selectTile(tilePosition);
+                            break;
+                    }
+
+                    allowTileRedraw = false;
+                }
+                else if ((Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) &&
+                    Event.current.button == 0 &&
+                    Event.current.alt == false &&
+                    Event.current.shift == true &&
+                    Event.current.control == false &&
+                    allowTileRedraw)
+                {
+                    switch (selectTool)
+                    {
+                        case eToolIcons
+                        .brushTool:
+                            addEraseTiles(true);
+                            break;
+                    }
+
+                    allowTileRedraw = false;
+                }
+                else if ((Event.current.type == EventType.MouseDrag || Event.current.type == EventType.MouseDown) &&
+                    Event.current.button == 0 &&
+                    Event.current.alt == false &&
+                    Event.current.shift == false &&
+                    Event.current.control == true &&
+                    allowTileRedraw)
+                {
+                    switch (selectTool)
+                    {
+                        case eToolIcons.brushTool:
+                            MAP_tileFunctions.pickTile(tilePosition);
+                            break;
+                        case eToolIcons.selectTool:
+                            MAP_tileFunctions.delSelectTile(tilePosition);
+                            break;
+                    }
+
+                    allowTileRedraw = false;
+                }
+                HandleUtility.AddDefaultControl(controlId);
+            }
         }
     }
+
     private static void updateSceneMousePosition()
     {
         if (Event.current == null)
         {
             return;
         }
+
         Vector2 mousePosition = new Vector2(Event.current.mousePosition.x, Event.current.mousePosition.y);
 
         Ray ray = HandleUtility.GUIPointToWorldRay(mousePosition);
         RaycastHit hitInfo;
-        if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, 1 << LayerMask.NameToLayer(Define.LAYER_MAP_TILTMAP)) == true)
+        if (Physics.Raycast(ray, out hitInfo, 1 << LayerMask.NameToLayer(Define.LAYER_MAP_TILTMAP)))
         {
-            Vector3 shiftOffset = gridSceneObject.transform.position;
+            Vector3 shitOffset = gridSceneObject.transform.position;
+            shitOffset.x = shitOffset.x - (int)shitOffset.x;
+            shitOffset.y = shitOffset.y - (int)shitOffset.y;
+            shitOffset.z = shitOffset.z - (int)shitOffset.z;
+            if (!editorPreferences.twoPointFiveDMode)
+            {
+                tilePosition.x = Mathf.Round(((hitInfo.point.x + shitOffset.x) - hitInfo.normal.x * 0.001f) / globalScale) * globalScale - shitOffset.x;
+                tilePosition.z = Mathf.Round(((hitInfo.point.z + shitOffset.z) - hitInfo.normal.z * 0.001f) / globalScale) * globalScale - shitOffset.z;
+                tilePosition.y = gridHeight + gridSceneObject.transform.position.y;
+            }
+            else
+            {
+                tilePosition.x = Mathf.Round(((hitInfo.point.x + shitOffset.x) - hitInfo.normal.x * 0.001f) / globalScale) * globalScale - shitOffset.x;
+                tilePosition.y = Mathf.Round(((hitInfo.point.y + shitOffset.y) - hitInfo.normal.y * 0.001f) / globalScale) * globalScale - shitOffset.y;
+                tilePosition.z = gridHeight + gridSceneObject.transform.position.z;
+            }
         }
-
     }
 
     private static void checkTilePositionIsValid(Rect rect)
     {
-
+        bool isValidArea = Event.current.mousePosition.y < rect.height - 35;
+        if (isValidArea != validTilePosition)
+        {
+            validTilePosition = isValidArea;
+            SceneView.RepaintAll();
+        }
     }
 
     private static void OnSceneChanged()
     {
-
+        if (currentScene != EditorSceneManager.GetActiveScene().name)
+        {
+            toolEnabled = false;
+            MAPTools_Utils.showUnityGrid(true);
+            currentScene = EditorSceneManager.GetActiveScene().name;
+        }
+        MAP_sceneGizmoFunctions.displayGizmoGrid();
     }
 
     public static void createCustomBrushFolder(string path)
@@ -612,6 +892,137 @@ public class MAP_Editor : EditorWindow
         }
     }
 
+    private static bool checkForForzonMap()
+    {
+        if (findTileMapParent())
+        {
+            foreach (Transform child in tileMapParent.transform)
+            {
+                if (child.gameObject.name == Define.FROZEN_MAP)
+                {
+                    toolEnabled = false;
+                    MAPTools_Utils.showUnityGrid(true);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void unFreezeMap()
+    {
+        toolEnabled = false;
+        EditorGUILayout.Space();
+
+        GUILayout.Label(editorData.mapEditorHeader);
+        displayMapList();
+        if (GUILayout.Button("save frozen object", GUILayout.Height(30)))
+        {
+            string meshFolder = EditorUtility.OpenFolderPanel("frozen map destanation folder", "", "");
+            if (string.IsNullOrEmpty(meshFolder))
+            {
+                meshFolder = "Assets/";
+            }
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            MAP_freezeMap.saveFrozenMesh(meshFolder);
+        }
+        EditorGUILayout.BeginVertical("box");
+        if (GUILayout.Button("unfreeze map", GUILayout.Height(30)))
+        {
+            if (findTileMapParent())
+            {
+                foreach (Transform item in tileMapParent.transform)
+                {
+                    if (item.gameObject.name == Define.LAYER)
+                    {
+                        item.gameObject.SetActive(true);
+                    }
+                    else if (item.gameObject.name == Define.FROZEN_MAP)
+                    {
+                        DestroyImmediate(item.gameObject);
+                    }
+                }
+            }
+            MAP_brushFunctions.destoryBrushTile();
+            currentBrushType = eBrushTypes.standardBrush;
+            setTileBrush(0);
+            showUI(false);
+            toolEnabled = false;
+        }
+        if (!uiState)
+        {
+            showUI(true);
+        }
+        MAP_sceneGizmoFunctions.displayGizmoGrid();
+        EditorGUILayout.EndVertical();
+    }
+
+    public static void cloneMap(GameObject sourcemap)
+    {
+        GameObject mainmap = Map_mapManagerFunctions.buildNewMap(sourcemap.name + " (clone)");
+        Transform[] cloneLayers = mainmap.GetComponentsInChildren<Transform>();
+        int cloneLayerIndex = 0;
+        foreach (Transform layers in sourcemap.transform)
+        {
+            foreach (Transform tiles in layers)
+            {
+                GameObject clone = PrefabUtility.InstantiatePrefab(PrefabUtility.GetCorrespondingObjectFromSource(tiles.gameObject)) as GameObject;
+                if (clone != null)
+                {
+                    clone.transform.position = tiles.position;
+                    clone.transform.eulerAngles = tiles.eulerAngles;
+                    clone.transform.localScale = tiles.localScale;
+                    clone.transform.SetParent(cloneLayers[cloneLayerIndex]);
+                }
+            }
+            cloneLayerIndex++;
+        }
+    }
+
+
+
+    private static void displayMapList()
+    {
+        if (ref_MapManager == null)
+        {
+            Map_mapManagerFunctions.getGridSceneObjectReference();
+        }
+        mapNames = new string[ref_MapManager.mapList.Count];
+        if (mapNames.Length > 0)
+        {
+            for (int i = 0; i < ref_MapManager.mapList.Count; i++)
+            {
+                if (ref_MapManager.mapList[i] != null)
+                {
+                    mapNames[i] = ref_MapManager.mapList[i].name;
+                }
+            }
+            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.BeginHorizontal();
+            currentMapIndex = EditorGUILayout.Popup(currentMapIndex, mapNames);
+
+            if (oldCurrentMapIndex != currentMapIndex)
+            {
+                Map_mapManagerFunctions.setActiveMap();
+            }
+            oldCurrentMapIndex = currentMapIndex;
+            openConfig = GUILayout.Toggle(openConfig, "+", "Button", GUILayout.Width(30), GUILayout.Height(15));
+            if (openConfig == true)
+            {
+                EditorWindow.GetWindow<MAP_MapManagerUI>(true, "Map Manager");
+            }
+            openConfig = false;
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
+        }
+        else
+        {
+            Map_mapManagerFunctions.setDefaultMap();
+        }
+    }
+
+
     public static Vector3 brushSize
     {
         get { return _brushSize; }
@@ -665,21 +1076,91 @@ public class MAP_Editor : EditorWindow
 
     private static void drawcustomBrushButtons(int index)
     {
+        if (currentTileSetObjects[index] != null)
+        {
+            Texture2D previewImage = AssetPreview.GetAssetPreview(currentCustomBrushes[index]);
+            GUIContent buttonContent = new GUIContent(previewImage);
 
+            bool isActive = false;
+            if (currentTile != null && currentTile.name == currentCustomBrushes[index].name)
+            {
+                isActive = true;
+            }
+            EditorGUILayout.BeginVertical();
+            bool isToggleDown = GUILayout.Toggle(isActive, buttonContent, GUI.skin.button);
+            if (isToggleDown == true && isActive == false)
+            {
+                currentTile = currentCustomBrushes[index];
+                currentBrushType = eBrushTypes.customBrush;
+                _tileRotation = 0;
+                tileRotationX = 0;
+                MAP_brushFunctions.updateBrushTile();
+                selectTool = eToolIcons.brushTool;
+            }
+
+            if (GUILayout.Button(Define.DELETE_BRUSH))
+            {
+                if (EditorUtility.DisplayDialog("delete custom brush?", "are you sure want to delete the custom brush from the project", "Delete", "No"))
+                {
+                    string destationPath = availableTileSets[currentBrushIndex].customBrushDestinationFolder + "/";
+                    if (currentCustomBrushes[index].GetComponent<MAP_tileGizmo>())
+                    {
+                        List<string> meshsTileDelete = currentCustomBrushes[index].GetComponent<MAP_tileGizmo>().customBrushMeshName;
+                        foreach (string item in meshsTileDelete)
+                        {
+                            AssetDatabase.DeleteAsset(destationPath + item + ".asset");
+                        }
+                    }
+                    AssetDatabase.DeleteAsset(destationPath + currentCustomBrushes[index].name + ".prefab");
+                    loadCustomBrushes();
+                }
+            }
+            EditorGUILayout.EndVertical();
+        }
     }
 
+    public static void addEraseTiles(bool eraseOnly)
+    {
+        if (standardBrushSize)
+        {
+            MAP_tileFunctions.eraseTile(tilePosition);
+            if (!eraseOnly)
+                MAP_tileFunctions.addTile(tilePosition);
+        }
+        else
+        {
+            Vector3 newTilePos = tilePosition;
+            for (int y = 0; y < brushSize.y; y++)
+            {
+                newTilePos.y = tilePosition.y + (globalScale * y);
+                newTilePos.z = tilePosition.z - ((brushSize.z - 1) * globalScale) * 0.5f;
 
+                for (int z = 0; z < (int)brushSize.z; z++)
+                {
+                    newTilePos.x = tilePosition.x - ((brushSize.x - 1) * globalScale) * 0.5f;
+                    for (int i = 0; i < (int)brushSize.x; i++)
+                    {
+                        MAP_tileFunctions.eraseTile(newTilePos);
+                        if (!eraseOnly)
+                            MAP_tileFunctions.addTile(newTilePos);
+                        newTilePos.x += globalScale;
+                    }
+                    newTilePos.z += globalScale;
+                }
+            }
+        }
+    }
 
-
-
+    private static void repaintSceneView()
+    {
+        if (tilePosition != oldTilePosition)
+        {
+            SceneView.RepaintAll();
+            allowTileRedraw = true;
+            oldTilePosition = tilePosition;
+        }
+    }
 }
-
-
-
-
-
-
-
 public struct s_AltTiles
 {
     public string masterTile;
