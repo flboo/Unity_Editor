@@ -20,7 +20,7 @@ public class MAP_MapManagerUI : EditorWindow
     {
         EditorGUILayout.Space();
         _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.BeginVertical(Define.BOX);
 
         EditorGUILayout.LabelField("new map name", EditorStyles.boldLabel);
 
@@ -34,7 +34,7 @@ public class MAP_MapManagerUI : EditorWindow
 
         EditorGUILayout.EndVertical();
 
-        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.BeginVertical(Define.BOX);
 
         for (int i = 0; i < MAP_Editor.ref_MapManager.mapList.Count; i++)
         {

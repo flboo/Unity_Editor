@@ -36,7 +36,7 @@ public class Map_mapManagerFunctions
         GameObject mainmap = new GameObject(mapName);
         for (int i = 0; i < 9; i++)
         {
-            GameObject layer = new GameObject("layer" + i);
+            GameObject layer = new GameObject(Define.LAYER + i);
             layer.transform.parent = mainmap.transform;
             layer.transform.position = Vector3.zero;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -32,7 +33,7 @@ public class MAP_Editor : EditorWindow
     public static GameObject[] currentTileSetObjects;
     private static GameObject[] currentCustomBrushes;
     private static Vector2 _scrollPosition;
-    private static eBrushOptions brushOptions = eBrushOptions.tilesetBrush;
+    private static eBrushOptions brushPallete = eBrushOptions.tilesetBrush;
     public static GameObject gridSceneObject;
 
     private static Color _gridColorNormal = Color.black;
@@ -120,7 +121,7 @@ public class MAP_Editor : EditorWindow
 
             for (int i = 1; i < 9; i++)
             {
-                editorPreferences.layerNames.Add("layer" + i);
+                editorPreferences.layerNames.Add(Define.LAYER + i);
                 editorPreferences.layerFreeze.Add(true);
                 editorPreferences.layerStatic.Add(true);
             }
@@ -156,20 +157,11 @@ public class MAP_Editor : EditorWindow
         //setup scene delegates
         currentScene = EditorSceneManager.GetActiveScene().name;
 
-#if UNITY_2019_1_OR_NEWER
         SceneView.duringSceneGui -= OnSceneGUI;
         SceneView.duringSceneGui += OnSceneGUI;
-#else
-        SceneView.onSceneGUIDelegate -= OnSceneGUI;
-        SceneView.onSceneGUIDelegate += OnSceneGUI;
-#endif 
-#if UNITY_2017
-        EditorApplication.hierarchyWindowChanged -= OnSceneChanged;
-        EditorApplication.hierarchyWindowChanged += OnSceneChanged;
-#else
+
         EditorApplication.hierarchyChanged -= OnSceneChanged;
         EditorApplication.hierarchyChanged += OnSceneChanged;
-#endif
 
         findUI();
         if (toolEnabled)
@@ -179,6 +171,13 @@ public class MAP_Editor : EditorWindow
 
     }
 
+    void OnSelectionChange()
+    {
+        if (Selection.gameObjects.Length > 0 && selectTiles.Count > 0)
+        {
+            selectTiles.Clear();
+        }
+    }
 
     void Update()
     {
@@ -220,7 +219,7 @@ public class MAP_Editor : EditorWindow
         toolEnabled = false;
         EditorGUILayout.Space();
         GUILayout.Label(editorData.mapEditorHeader);
-        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.BeginVertical(Define.BOX);
 
         setupScene = GUILayout.Toggle(setupScene, "Add Map Editor Objects", "Button", GUILayout.Height(30));
         if (setupScene)
@@ -252,7 +251,7 @@ public class MAP_Editor : EditorWindow
         EditorGUILayout.Space();
         GUILayout.Label(editorData.mapEditorHeader);
 
-        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.BeginVertical(Define.BOX);
         EditorGUILayout.BeginHorizontal();
 
         toolEnabled = GUILayout.Toggle(toolEnabled, "Enable map", "Button", GUILayout.Height(30));
@@ -267,9 +266,165 @@ public class MAP_Editor : EditorWindow
                 MAP_tileFunctions.restoreIsolatedLayerTiles();
                 MAP_brushFunctions.cleanSceneOfBrushObjects();
             }
+            else
+            {
+                showUI(false);
+                setTileBrush(0);
+                MAPTools_Utils.showUnityGrid(false);
+            }
+            SceneView.RepaintAll();
+        }
+        _toolEnabled = toolEnabled;
+        openConfig = GUILayout.Toggle(openConfig, editorData.configButton, "Button", GUILayout.Width(30), GUILayout.Height(30));
+
+        if (openConfig == true)
+        {
+            MAP_editorConfig editorConfig = EditorWindow.GetWindow<MAP_editorConfig>(true, Define.EDITOR_CONFIG);
+            editorConfig.titleContent.text = Define.EDITOR_CONFIG;
         }
 
+        openConfig = false;
 
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+
+        displayMapList();
+
+        EditorGUILayout.BeginVertical(Define.BOX);
+        gridDimensions = EditorGUILayout.Vector2Field(Define.DRID_DEMIONSIONS, gridDimensions);
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.BeginVertical(Define.BOX);
+        string[] gridLayout = new string[] { "Flat Grid", "2.5D Grid" };
+        gridType = GUILayout.SelectionGrid(gridType, gridLayout, 2, EditorStyles.toolbarButton);
+        editorPreferences.twoPointFiveDMode = gridType != 0;
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.BeginVertical(Define.BOX);
+        EditorGUILayout.BeginHorizontal();
+        quantizesGridHeight = gridHeight / globalScale;
+        GUILayout.Label("Grid Height: " + quantizesGridHeight.ToString());
+        GUILayout.Label(string.Format("Brush Size: ({0},{1},{2})", brushSize.x, brushSize.y, brushSize.z));
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.BeginVertical(Define.BOX);
+        EditorGUILayout.LabelField("pick the tile set to use", EditorStyles.boldLabel);
+        currentTileSetIndex = EditorGUILayout.Popup("choose tileset", currentTileSetIndex, tileSetNames);
+
+        if (GUILayout.Button("reload available tilesets", GUILayout.Height(30)))
+        {
+            reloadTileSets();
+        }
+        EditorGUILayout.EndVertical();
+
+        EditorGUILayout.BeginVertical(Define.BOX);
+        string[] buttonLabels = new string[] { "Tileset Brushes", "Custom Brushes" };
+        brushPallete = (eBrushOptions)GUILayout.SelectionGrid((int)brushPallete, buttonLabels, 2, EditorStyles.toolbarButton);
+        EditorGUILayout.EndVertical();
+
+        drawTilePreviews();
+
+        EditorGUILayout.BeginVertical(Define.BOX);
+        EditorGUILayout.LabelField("Tile Previre Columns", EditorStyles.boldLabel);
+        tilePreviewColumnWidth = EditorGUILayout.IntSlider(tilePreviewColumnWidth, 1, 10);
+        EditorGUILayout.EndVertical();
+
+        useAltTiles = GUILayout.Toggle(useAltTiles, "Use Alt Tiles", "Button", GUILayout.Height(20));
+        bool freezeMap = false;
+        freezeMap = GUILayout.Toggle(freezeMap, "Freeze Map", "Button", GUILayout.Height(20));
+
+        if (freezeMap)
+        {
+            MAP_freezeMap.combineTiles();
+        }
+
+        updateGridColors();
+        MAP_sceneGizmoFunctions.displayGizmoGrid();
+        _currentTileSetIndex = currentTileSetIndex;
+    }
+
+    private static void drawTilePreviews()
+    {
+        _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
+        int horzomtalCounter = 0;
+        EditorGUILayout.BeginHorizontal();
+        if (brushPallete == eBrushOptions.tilesetBrush)
+        {
+            if (currentTileSetObjects != null)
+            {
+                for (int i = 0; i < currentTileSetObjects.Length; i++)
+                {
+                    if (currentTileSetObjects[i] != null)
+                    {
+                        EditorGUILayout.BeginVertical();
+
+                        drawTileButtons(i);
+                        EditorGUILayout.BeginHorizontal(Define.BOX);
+                        EditorGUILayout.LabelField(currentTileSetObjects[i].name, EditorStyles.boldLabel);
+                        EditorGUILayout.EndHorizontal();
+                        EditorGUILayout.EndVertical();
+
+                        horzomtalCounter++;
+
+                        if (horzomtalCounter == tilePreviewColumnWidth)
+                        {
+                            horzomtalCounter = 0;
+                            EditorGUILayout.EndHorizontal();
+                            EditorGUILayout.BeginHorizontal();
+                        }
+                    }
+                }
+            }
+        }
+        else if (brushPallete == eBrushOptions.customBrush)
+        {
+            if (currentTileSetObjects != null)
+            {
+                for (int i = 0; i < currentTileSetObjects.Length; i++)
+                {
+                    drawcustomBrushButtons(i);
+                    horzomtalCounter++;
+                    if (horzomtalCounter == tilePreviewColumnWidth)
+                    {
+                        horzomtalCounter = 0;
+                        EditorGUILayout.EndHorizontal();
+                        EditorGUILayout.BeginHorizontal();
+                    }
+                }
+            }
+        }
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndScrollView();
+    }
+
+    private static void drawTileButtons(int index)
+    {
+        if (currentTileSetObjects[index] != null)
+        {
+            Texture2D previewTmage = AssetPreview.GetAssetPreview(currentTileSetObjects[index]);
+            GUIContent buttonguicontent = new GUIContent(previewTmage);
+            bool isActive = false;
+            if (currentTileSetObjects[index] != null && currentTile != null)
+            {
+                if (currentTile.name == currentTileSetObjects[index].name)
+                {
+                    isActive = true;
+                }
+            }
+            bool isToggleDown = GUILayout.Toggle(isActive, buttonguicontent, GUI.skin.button);
+            if (isToggleDown == true && isActive == false)
+            {
+                setTileBrush(index);
+            }
+        }
+    }
+
+    private static void reloadTileSets()
+    {
+        importTileSets(true);
+        loadCustomBrushes();
+        loadPreviewTiles();
     }
 
     public static void importTileSets(bool fullRescan)
@@ -403,7 +558,7 @@ public class MAP_Editor : EditorWindow
             int i = 0;
             foreach (Transform child in tileMapParent.transform)
             {
-                if (child.name.Contains("layer"))
+                if (child.name.Contains(Define.LAYER))
                 {
                     mapLayers[i] = child.gameObject;
                     i++;
@@ -435,6 +590,35 @@ public class MAP_Editor : EditorWindow
                 _gridColorNormal = editorPreferences.gridColorNormal;
                 SceneView.RepaintAll();
             }
+        }
+    }
+
+    public static float gridOffset
+    {
+        get
+        {
+            return editorPreferences.gridOffset;
+        }
+        set
+        {
+            GameObject gridTemp = GameObject.Find(Define.MAP_EDITOR_OBJECT);
+            editorPreferences.gridOffset = value;
+            if (gridTemp != null)
+            {
+                gridTemp.GetComponent<MAP_GizmoGrid>().gridOffset = value;
+            }
+        }
+    }
+
+    public static int tilePreviewColumnWidth
+    {
+        get
+        {
+            return EditorPrefs.GetInt("tilePreviewColumnWidth", 2);
+        }
+        set
+        {
+            EditorPrefs.SetInt("tilePreviewColumnWidth", value);
         }
     }
 
@@ -878,7 +1062,31 @@ public class MAP_Editor : EditorWindow
         {
             return editorPreferences.gridDimensions;
         }
-
+        set
+        {
+            editorPreferences.gridDimensions = value;
+            GameObject gridTemp = GameObject.Find(Define.MAP_EDITOR_OBJECT);
+            if (gridTemp != null)
+            {
+                gridTemp.GetComponent<MAP_GizmoGrid>().gridWidth = (int)value.x;
+                gridTemp.GetComponent<MAP_GizmoGrid>().gridDepth = (int)value.y;
+                Vector3 temGridSize;
+                if (!editorPreferences.twoPointFiveDMode)
+                {
+                    temGridSize.x = (int)value.x * globalScale;
+                    temGridSize.y = 0.1f;
+                    temGridSize.z = (int)value.y * globalScale;
+                }
+                else
+                {
+                    temGridSize.x = (int)value.x * globalScale;
+                    temGridSize.y = (int)value.y * globalScale;
+                    temGridSize.z = 0.1f;
+                }
+                gridTemp.GetComponent<BoxCollider>().size = temGridSize;
+            }
+            EditorUtility.SetDirty(editorData);
+        }
     }
 
     public static bool standardBrushSize
@@ -927,7 +1135,7 @@ public class MAP_Editor : EditorWindow
             AssetDatabase.Refresh();
             MAP_freezeMap.saveFrozenMesh(meshFolder);
         }
-        EditorGUILayout.BeginVertical("box");
+        EditorGUILayout.BeginVertical(Define.BOX);
         if (GUILayout.Button("unfreeze map", GUILayout.Height(30)))
         {
             if (findTileMapParent())
@@ -980,8 +1188,6 @@ public class MAP_Editor : EditorWindow
         }
     }
 
-
-
     private static void displayMapList()
     {
         if (ref_MapManager == null)
@@ -998,7 +1204,7 @@ public class MAP_Editor : EditorWindow
                     mapNames[i] = ref_MapManager.mapList[i].name;
                 }
             }
-            EditorGUILayout.BeginVertical("box");
+            EditorGUILayout.BeginVertical(Define.BOX);
             EditorGUILayout.BeginHorizontal();
             currentMapIndex = EditorGUILayout.Popup(currentMapIndex, mapNames);
 

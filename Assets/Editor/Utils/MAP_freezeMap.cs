@@ -107,7 +107,7 @@ public class MAP_freezeMap : EditorWindow
 
             foreach (Transform layer in MAP_Editor.tileMapParent.transform)
             {
-                if (layer.name.Contains("layer"))
+                if (layer.name.Contains(Define.LAYER))
                 {
                     layer.gameObject.SetActive(false);
                 }

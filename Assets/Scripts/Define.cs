@@ -21,5 +21,8 @@ public class Define
     public const string LAYER = "layer";
     public const string MAP_MANAGER = "map_manager";
     public const string SUB_MESH = "sub_mesh";
-
+    public const string EDITOR_CONFIG = "editor config";
+    public const string DRID_DEMIONSIONS = "grid_demionsions";
+    public const string BOX = "box";
+    public const string ICON_SIZE = "Icon Size";
 }
