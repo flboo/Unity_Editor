@@ -272,11 +272,12 @@ public class MAP_tileFunctions : EditorWindow
     {
         if (MAP_Editor.isolateLayer == false)
         {
-
+            isolateLayerTiles();
             MAP_Editor.isolateLayer = true;
         }
         else
         {
+            restoreIsolatedLayerTiles();
             MAP_Editor.isolateLayer = false;
         }
     }

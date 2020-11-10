@@ -7,15 +7,15 @@ using System.Linq;
 
 public class MAP_freezeMap : EditorWindow
 {
-    private static GameObject frozemMap;
+    private static GameObject frozenMap;
 
     public static void combineTiles()
     {
         if (MAP_Editor.tileMapParent)
         {
-            frozemMap = new GameObject();
-            frozemMap.transform.SetParent(MAP_Editor.tileMapParent.transform);
-            frozemMap.name = Define.FROZEN_MAP;
+            frozenMap = new GameObject();
+            frozenMap.transform.SetParent(MAP_Editor.tileMapParent.transform);
+            frozenMap.name = Define.FROZEN_MAP;
 
             List<GameObject> tilesToCombine = new List<GameObject>();
             List<GameObject> lightsToCreate = new List<GameObject>();
@@ -34,7 +34,7 @@ public class MAP_freezeMap : EditorWindow
                 else
                 {
                     GameObject layerCopy = Instantiate(MAP_Editor.mapLayers[i], MAP_Editor.mapLayers[i].transform.position, Quaternion.identity) as GameObject;
-                    layerCopy.transform.SetParent(frozemMap.transform);
+                    layerCopy.transform.SetParent(frozenMap.transform);
                     if (!MAP_Editor.editorPreferences.layerStatic[i])
                     {
                         Transform[] tempTiles = layerCopy.GetComponentsInChildren<Transform>();
@@ -62,8 +62,9 @@ public class MAP_freezeMap : EditorWindow
                 }
 
                 if (tile.GetComponent<Light>())
-                { }
-                lightsToCreate.Add(tile.gameObject);
+                {
+                    lightsToCreate.Add(tile.gameObject);
+                }
             }
 
             foreach (GameObject light in lightsToCreate)
@@ -72,7 +73,7 @@ public class MAP_freezeMap : EditorWindow
                 newLight.isStatic = true;
                 newLight.transform.position = light.transform.position;
                 newLight.transform.eulerAngles = light.transform.eulerAngles;
-                newLight.transform.localScale = light.transform.localScale;
+                newLight.transform.localScale = frozenMap.transform.localScale;
             }
 
             tilesToCombine = tilesToCombine.OrderBy(x => x.GetComponent<MeshRenderer>().sharedMaterial.name).ToList();
@@ -126,7 +127,7 @@ public class MAP_freezeMap : EditorWindow
     private static void newSubMesh(List<CombineInstance> combine, Material mat)
     {
         GameObject subMesh = new GameObject();
-        subMesh.transform.SetParent(frozemMap.transform);
+        subMesh.transform.SetParent(frozenMap.transform);
         subMesh.name = Define.SUB_MESH;
 
         MeshFilter subMeshFilter = subMesh.AddComponent<MeshFilter>();

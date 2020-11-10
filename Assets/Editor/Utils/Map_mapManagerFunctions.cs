@@ -34,7 +34,7 @@ public class Map_mapManagerFunctions
     public static GameObject buildNewMap(string mapName)
     {
         GameObject mainmap = new GameObject(mapName);
-        for (int i = 0; i < 9; i++)
+        for (int i = 1; i < 9; i++)
         {
             GameObject layer = new GameObject(Define.LAYER + i);
             layer.transform.parent = mainmap.transform;

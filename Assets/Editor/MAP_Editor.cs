@@ -39,7 +39,7 @@ public class MAP_Editor : EditorWindow
     private static Color _gridColorNormal = Color.black;
     private static Color _gridColorBorder = Color.black;
     private static Color _gridColorFill = Color.black;
-    private static Vector3 _brushSize = Vector3.zero;
+    private static Vector3 _brushSize = Vector3.one;
     private static bool setupScene = false;
 
     public static bool eraseToolOverride = false;
@@ -93,10 +93,10 @@ public class MAP_Editor : EditorWindow
     public static Vector3 pickTileScale = Vector3.zero;
     public static Vector3 tileScale = Vector3.one;
 
-    [MenuItem("MAP/map_editor")]
+    [MenuItem("MAP/Map_Editor")]
     private static void Initialized()
     {
-        MAP_Editor tileMapEditorWindow = EditorWindow.GetWindow<MAP_Editor>(false, "map editor");
+        MAP_Editor tileMapEditorWindow = EditorWindow.GetWindow<MAP_Editor>(false, "Map Editor");
         tileMapEditorWindow.titleContent.text = "Map Editor";
     }
 
@@ -211,6 +211,8 @@ public class MAP_Editor : EditorWindow
                     unFreezeMap();
                 }
             }
+            updateGridType();
+            updateGridScale();
         }
     }
 
@@ -479,6 +481,7 @@ public class MAP_Editor : EditorWindow
             Debug.Log("No tile sets have been created");
         }
     }
+
     private static void loadPreviewTiles()
     {
         try
@@ -677,7 +680,8 @@ public class MAP_Editor : EditorWindow
 
             foreach (GameObject selected in selectTiles)
             {
-                MAP_sceneGizmoFunctions.drawSceneGizmoCube(selected.transform.position, Vector3.one, Color.green);
+                if (selected != null)
+                    MAP_sceneGizmoFunctions.drawSceneGizmoCube(selected.transform.position, Vector3.one, Color.green);
             }
 
             switch (selectTool)
@@ -874,6 +878,35 @@ public class MAP_Editor : EditorWindow
                 }
                 HandleUtility.AddDefaultControl(controlId);
             }
+            if (showGizmos)
+            {
+                if (selectTiles.Count > 0)
+                {
+                    foreach (GameObject tile in selectTiles)
+                    {
+                        handleInfo data;
+                        data.tileName = tile.name;
+                        data.layer = tile.transform.parent.name;
+                        data.grid = tile.transform.position.y;
+                        MAP_sceneGizmoFunctions.drawTileInfo(tile.transform.position, data);
+                    }
+
+                }
+            }
+            //scene housekeeping
+            MAP_brushFunctions.updateBrushPosition();
+            checkGlobleScale();
+            repaintSceneView();
+            previousSelectTool = selectTool;
+        }
+    }
+
+    private static void checkGlobleScale()
+    {
+        globalScale = editorPreferences.gridScaleFactor;
+        if (_globalScale != globalScale)
+        {
+            updateGridScale();
         }
     }
 

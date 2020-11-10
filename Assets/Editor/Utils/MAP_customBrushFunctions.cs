@@ -266,18 +266,13 @@ public class MAP_customBrushFunctions : EditorWindow
 
                 foreach (Transform child in MAP_Editor.brushTile.transform)
                 {
-#if UNITY_2018_3_OR_NEWER
                     GameObject pasteTile = (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetCorrespondingObjectFromSource(child.gameObject) as GameObject);
-#else
-                    GameObject pasteTile = (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetPrefabParent(child.gameObject) as GameObject);
-#endif
                     MAP_tileFunctions.eraseTile(child.position);
                     pasteTile.transform.eulerAngles = child.eulerAngles;
                     pasteTile.transform.position = normalizePosition(child.position);
                     pasteTile.transform.localScale = child.transform.lossyScale;
                     pasteTile.transform.parent = MAP_Editor.mapLayers[MAP_Editor.currentLayer - 1].transform;
                 }
-
                 EditorSceneManager.MarkAllScenesDirty();
             }
         }

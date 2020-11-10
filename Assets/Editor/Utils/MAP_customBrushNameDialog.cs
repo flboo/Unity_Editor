@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-class MAP_customBrushNameDialog : EditorWindow
+class YuME_customBrushNameDialog : EditorWindow
 {
     string customBrushName;
 

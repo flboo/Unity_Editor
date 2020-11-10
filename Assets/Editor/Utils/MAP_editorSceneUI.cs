@@ -31,7 +31,7 @@ public class MAP_editorSceneUI : EditorWindow
                 drawSelectToolIcons(i, scenesView.position);
             }
         }
-        //draw layer bar
+
         drawLayerToolIcons(scenesView.position);
         Handles.EndGUI();
     }
@@ -76,7 +76,7 @@ public class MAP_editorSceneUI : EditorWindow
             isActive = true;
         }
         GUIContent buttonContent;
-        buttonContent = new GUIContent(MAP_Editor.editorData.secondaryIconData[index], MAP_Editor.editorData.primaryIconTooltip[index]);
+        buttonContent = new GUIContent(MAP_Editor.editorData.secondaryIconData[index], MAP_Editor.editorData.secondaryIconTooltip[index]);
 
         bool isToggleDown = GUI.Toggle(new Rect((index * -1) * MAP_Editor.editorPreferences.iconWidth + position.width - MAP_Editor.editorPreferences.iconWidth - 10,
                             position.height - 25 - MAP_Editor.editorPreferences.iconWidth,

@@ -35,7 +35,7 @@ MonoBehaviour:
   gridOffset: 0.01
   gridLayerHeightScaler: 1
   gridDimensions: {x: 40, y: 40}
-  gridScaleFactor: 1
+  gridScaleFactor: 2.5
   invertMouseWheel: 0
   initialOffset: {x: 0, y: 0, z: 0}
   twoPointFiveDMode: 0
