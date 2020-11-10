@@ -7,7 +7,7 @@ public class ScriptObjectCreat : EditorWindow
 {
     private static string savePath = "Assets/ScriptableObject";
 
-    [MenuItem("windows/MAP/ScriptObject/editor_data")]
+    [MenuItem("MAP/ScriptObject/editor_data")]
     public static void CreateTestAsset()
     {
         //创建数据
@@ -25,7 +25,7 @@ public class ScriptObjectCreat : EditorWindow
         UnityEditor.AssetDatabase.CreateAsset(editorData, fullPath);
         UnityEditor.AssetDatabase.Refresh();
     }
-    [MenuItem("windows/MAP/ScriptObject/prefrence_data")]
+    [MenuItem("MAP/ScriptObject/prefrence_data")]
     public static void CreatePrefrencesAsset()
     {
         //创建数据
@@ -44,21 +44,15 @@ public class ScriptObjectCreat : EditorWindow
         UnityEditor.AssetDatabase.Refresh();
     }
 
-    [MenuItem("windows/MAP/ScriptObject/tileset_data")]
+    [MenuItem("MAP/ScriptObject/tileset_data")]
     public static void CreateTilesetAsset()
     {
+        //说明  这个.asset不要放在创建的目录下  详情参考  TileTestObject01目录
         //创建数据
         MAP_tilesetData editorData = ScriptableObject.CreateInstance<MAP_tilesetData>();
         editorData.name = "tileset_data";
         CreatAssetData(editorData);
     }
-
-
-
-
-
-
-
 
     private static void CreatAssetData(UnityEngine.Object asset)
     {

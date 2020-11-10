@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b1a29ae1cbd7442ab36ede8f970fa1e, type: 3}
-  m_Name: tileset_data01
+  m_Name: tileset_data1
   m_EditorClassIdentifier: 
   tileSetName: tileset_data
-  customBrushDestinationFolder: Assets/TileObject1/CustomBrushes
+  customBrushDestinationFolder: Assets/TileTestObject01/CustomBrushes
   tileData:
-  - Assets/TileObject1/Cube
-  customBrushData:
-  - Assets/TileObject1/CustomBrushes/Sphere
+  - Assets/TileTestObject01/Cube.prefab
+  - Assets/TileTestObject01/Cube1.prefab
+  customBrushData: []

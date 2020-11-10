@@ -50,7 +50,7 @@ public class Map_mapManagerFunctions
         {
             MAP_Editor.gridSceneObject = GameObject.Find(Define.MAP_EDITOR_OBJECT);
         }
-        if (MAP_Editor.gridSceneObject == null)
+        if (MAP_Editor.gridSceneObject != null)
         {
             MAP_Editor.ref_MapManager = MAP_Editor.gridSceneObject.GetComponent<MAP_MapManager>();
         }

@@ -29,7 +29,7 @@ public class MAP_customBrushFunctions : EditorWindow
 
         tileParentObject.name = customBrushName + Define.MAP_PREFAB;
 
-        string destinationPath = MAPTools_Utils.getAssetsPath(MAP_Editor.availableTileSets[MAP_Editor.currentTileSetIndex]) + Define.CUSTOM_BRUSHFES;
+        string destinationPath = MAPTools_Utils.getAssetsPath(MAP_Editor.availableTileSets[MAP_Editor.currentTileSetIndex]) + Define.CUSTOM_BRUSHFES + "/";
 
         if (MAP_Editor.selectTiles.Count > 0)
         {

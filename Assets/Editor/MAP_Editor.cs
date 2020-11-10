@@ -93,11 +93,11 @@ public class MAP_Editor : EditorWindow
     public static Vector3 pickTileScale = Vector3.zero;
     public static Vector3 tileScale = Vector3.one;
 
-    [MenuItem("windows/MAP/map_editor")]
+    [MenuItem("MAP/map_editor")]
     private static void Initialized()
     {
         MAP_Editor tileMapEditorWindow = EditorWindow.GetWindow<MAP_Editor>(false, "map editor");
-        tileMapEditorWindow.titleContent.text = "map editor";
+        tileMapEditorWindow.titleContent.text = "Map Editor";
     }
 
     void OnEnable()
@@ -379,9 +379,9 @@ public class MAP_Editor : EditorWindow
         }
         else if (brushPallete == eBrushOptions.customBrush)
         {
-            if (currentTileSetObjects != null)
+            if (currentCustomBrushes != null)
             {
-                for (int i = 0; i < currentTileSetObjects.Length; i++)
+                for (int i = 0; i < currentCustomBrushes.Length; i++)
                 {
                     drawcustomBrushButtons(i);
                     horzomtalCounter++;
@@ -450,8 +450,8 @@ public class MAP_Editor : EditorWindow
                     }
                     if (tempdata != null)
                     {
-                        path = MAPTools_Utils.getAssetsPath(tempdata) + "CustomBrushes/";
-                        containerPrefabs = MAPTools_Utils.getDictoryContents(MAPTools_Utils.getAssetsPath(tempdata) + "CustomBrushes/", "*.prefab");
+                        path = MAPTools_Utils.getAssetsPath(tempdata) + Define.CUSTOM_BRUSHFES + "/";
+                        containerPrefabs = MAPTools_Utils.getDictoryContents(MAPTools_Utils.getAssetsPath(tempdata) + Define.CUSTOM_BRUSHFES + "/", "*.prefab");
                         if (containerPrefabs != null)
                         {
                             foreach (string prefab in containerPrefabs)
@@ -511,10 +511,10 @@ public class MAP_Editor : EditorWindow
     {
         try
         {
-            string path = MAPTools_Utils.getAssetsPath(availableTileSets[currentMapIndex]) + "CustomBrushes";
+            string path = MAPTools_Utils.getAssetsPath(availableTileSets[currentMapIndex]) + Define.CUSTOM_BRUSHFES;
             if (path != null)
             {
-                currentCustomBrushes = MAPTools_Utils.loadDirectoryContents(path, "*_MAP.prefab");
+                currentCustomBrushes = MAPTools_Utils.loadDirectoryContents(path, "*.prefab");
                 if (currentCustomBrushes == null)
                 {
                     createCustomBrushFolder(path);
@@ -934,7 +934,7 @@ public class MAP_Editor : EditorWindow
     {
         Debug.Log("Directory" + path + " is missing. Creating now.");
         string newPath = path.Replace("/CustomBrushes", "");
-        AssetDatabase.CreateFolder(newPath, "CustomBrushes");
+        AssetDatabase.CreateFolder(newPath, Define.CUSTOM_BRUSHFES);
     }
 
 
@@ -1282,7 +1282,7 @@ public class MAP_Editor : EditorWindow
 
     private static void drawcustomBrushButtons(int index)
     {
-        if (currentTileSetObjects[index] != null)
+        if (currentCustomBrushes[index] != null)
         {
             Texture2D previewImage = AssetPreview.GetAssetPreview(currentCustomBrushes[index]);
             GUIContent buttonContent = new GUIContent(previewImage);
@@ -1298,8 +1298,8 @@ public class MAP_Editor : EditorWindow
             {
                 currentTile = currentCustomBrushes[index];
                 currentBrushType = eBrushTypes.customBrush;
-                _tileRotation = 0;
-                tileRotationX = 0;
+                _tileRotation = 0f;
+                tileRotationX = 0f;
                 MAP_brushFunctions.updateBrushTile();
                 selectTool = eToolIcons.brushTool;
             }
