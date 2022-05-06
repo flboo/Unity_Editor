@@ -1,0 +1,5 @@
+{
+  "maxLives": 23,
+  "timeToNextLife": 10,
+  "livesRefillCost": 20
+}

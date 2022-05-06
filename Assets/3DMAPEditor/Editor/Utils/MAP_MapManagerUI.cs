@@ -1,20 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEditor.SceneManagement;
+using UnityEngine;
 
 public class MAP_MapManagerUI : EditorWindow
 {
-
-    Vector2 _scrollPosition;
-    string newMapName;
-
-    private static void Initialize()
-    {
-        MAP_MapManagerUI mapManagerUI = EditorWindow.GetWindow<MAP_MapManagerUI>(true, Define.MAP_MANAGER);
-        mapManagerUI.titleContent.text = Define.MAP_MANAGER;
-    }
+    private Vector2 _scrollPosition;
+    private string newMapName;
 
     private void OnGUI()
     {
@@ -27,20 +18,18 @@ public class MAP_MapManagerUI : EditorWindow
         newMapName = EditorGUILayout.TextField(newMapName);
 
 
-        if (GUILayout.Button("add new map", GUILayout.Height(20)))
-        {
-            Map_mapManagerFunctions.buildNewMap(newMapName);
-        }
+        if (GUILayout.Button("add new map", GUILayout.Height(20))) Map_mapManagerFunctions.buildNewMap(newMapName);
 
         EditorGUILayout.EndVertical();
 
         EditorGUILayout.BeginVertical(Define.BOX);
 
-        for (int i = 0; i < MAP_Editor.ref_MapManager.mapList.Count; i++)
+        for (var i = 0; i < MAP_Editor.ref_MapManager.mapList.Count; i++)
         {
             EditorGUILayout.BeginHorizontal();
 
-            MAP_Editor.ref_MapManager.mapList[i].name = EditorGUILayout.TextField(MAP_Editor.ref_MapManager.mapList[i].name, GUILayout.Width(200));
+            MAP_Editor.ref_MapManager.mapList[i].name =
+                EditorGUILayout.TextField(MAP_Editor.ref_MapManager.mapList[i].name, GUILayout.Width(200));
             if (i != 0)
             {
                 if (GUILayout.Button("close map", GUILayout.Height(20), GUILayout.Width(75)))
@@ -48,6 +37,7 @@ public class MAP_MapManagerUI : EditorWindow
                     MAP_Editor.cloneMap(MAP_Editor.ref_MapManager.mapList[i]);
                     EditorSceneManager.MarkAllScenesDirty();
                 }
+
                 if (GUILayout.Button("delete map", GUILayout.Height(20), GUILayout.Width(75)))
                 {
                     DestroyImmediate(MAP_Editor.ref_MapManager.mapList[i]);
@@ -64,6 +54,7 @@ public class MAP_MapManagerUI : EditorWindow
                     EditorSceneManager.MarkAllScenesDirty();
                 }
             }
+
             EditorGUILayout.EndHorizontal();
         }
 
@@ -71,6 +62,9 @@ public class MAP_MapManagerUI : EditorWindow
         EditorGUILayout.EndScrollView();
     }
 
-
-
+    private static void Initialize()
+    {
+        var mapManagerUI = GetWindow<MAP_MapManagerUI>(true, Define.MAP_MANAGER);
+        mapManagerUI.titleContent.text = Define.MAP_MANAGER;
+    }
 }

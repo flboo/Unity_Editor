@@ -1,15 +1,16 @@
-﻿using UnityEngine;
-using System;
+﻿using System;
 using System.IO;
-using UnityEditor;
 using System.Reflection;
+using UnityEditor;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class MAPTools_Utils : MonoBehaviour
 {
     public static void showUnityGrid(bool show)
     {
-        Assembly editorAssembly = Assembly.GetAssembly(typeof(Editor));
-        Type annotationUtility = editorAssembly.GetType(Define.UNITY_EDITOR_ANNOTATION_UTILITY);
+        var editorAssembly = Assembly.GetAssembly(typeof(Editor));
+        var annotationUtility = editorAssembly.GetType(Define.UNITY_EDITOR_ANNOTATION_UTILITY);
         var property = annotationUtility.GetProperty("showGrid", BindingFlags.Static | BindingFlags.NonPublic);
         property.SetValue(null, show, null);
     }
@@ -20,16 +21,18 @@ public class MAPTools_Utils : MonoBehaviour
         var classid = annotation.GetField("classID");
         var scriptClass = annotation.GetField("scriptClass");
 
-        Type AnnotationUtility = Type.GetType("UnityEditor.AnnotationUtility, UnityEditor");
-        var getAnnotations = AnnotationUtility.GetMethod("GetAnnotations", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-        var setGizmosEnable = AnnotationUtility.GetMethod("SetGizmoEnabled", BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+        var AnnotationUtility = Type.GetType("UnityEditor.AnnotationUtility, UnityEditor");
+        var getAnnotations = AnnotationUtility.GetMethod("GetAnnotations",
+            BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+        var setGizmosEnable = AnnotationUtility.GetMethod("SetGizmoEnabled",
+            BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 
-        Array annotations = (Array)getAnnotations.Invoke(null, null);
+        var annotations = (Array)getAnnotations.Invoke(null, null);
 
         foreach (var a in annotations)
         {
-            int classId1 = (int)classid.GetValue(a);
-            string scriptdddClass = (string)scriptClass.GetValue(a);
+            var classId1 = (int)classid.GetValue(a);
+            var scriptdddClass = (string)scriptClass.GetValue(a);
             if (scriptdddClass == "MAP_tileGizmo")
             {
 #if UNITY_2019_1_OR_NEWER
@@ -45,17 +48,18 @@ public class MAPTools_Utils : MonoBehaviour
     {
         try
         {
-            string fullPath = Application.dataPath.Replace("/Assets", "") + "/" + path;
-            string[] folderContents = Directory.GetFiles(fullPath, patternSearch);
-            GameObject[] returnGameObjects = new GameObject[folderContents.Length];
+            var fullPath = Application.dataPath.Replace("/Assets", "") + "/" + path;
+            var folderContents = Directory.GetFiles(fullPath, patternSearch);
+            var returnGameObjects = new GameObject[folderContents.Length];
 
-            for (int i = 0; i < folderContents.Length; i++)
+            for (var i = 0; i < folderContents.Length; i++)
             {
-                int findAssetRoot = folderContents[i].IndexOf("Assets");
+                var findAssetRoot = folderContents[i].IndexOf("Assets");
 
-                string loadPath = folderContents[i].Substring(findAssetRoot, folderContents[i].Length - findAssetRoot);
+                var loadPath = folderContents[i].Substring(findAssetRoot, folderContents[i].Length - findAssetRoot);
                 returnGameObjects[i] = AssetDatabase.LoadAssetAtPath(loadPath, typeof(GameObject)) as GameObject;
             }
+
             return returnGameObjects;
         }
         catch
@@ -68,37 +72,37 @@ public class MAPTools_Utils : MonoBehaviour
     {
         try
         {
-            string fullPath = Application.dataPath.Replace("/Assets", "") + "/" + path;
+            var fullPath = Application.dataPath.Replace("/Assets", "") + "/" + path;
 
-            string[] folderContents = Directory.GetFiles(fullPath, patternSearch);
+            var folderContents = Directory.GetFiles(fullPath, patternSearch);
 
-            for (int i = 0; i < folderContents.Length; i++)
-            {
-                folderContents[i] = folderContents[i].Replace(fullPath, "");
-            }
+            for (var i = 0; i < folderContents.Length; i++) folderContents[i] = folderContents[i].Replace(fullPath, "");
             return folderContents;
         }
-        catch { return null; }
+        catch
+        {
+            return null;
+        }
     }
 
 
     public static string[] getFullPathFolderContents(string path, string patternSearch)
     {
-        string fullPath = Application.dataPath.Replace("/Assets", "") + "/" + path;
-        string[] folderContents = Directory.GetFiles(fullPath, patternSearch);
+        var fullPath = Application.dataPath.Replace("/Assets", "") + "/" + path;
+        var folderContents = Directory.GetFiles(fullPath, patternSearch);
         return folderContents;
     }
 
     public static int numberOfFilesInFolder(string path, string patternSearch)
     {
-        string fullPath = Application.dataPath.Replace("/Assets", "") + "/" + path;
-        string[] folderContents = Directory.GetFiles(fullPath, patternSearch);
+        var fullPath = Application.dataPath.Replace("/Assets", "") + "/" + path;
+        var folderContents = Directory.GetFiles(fullPath, patternSearch);
         return folderContents.Length;
     }
 
-    public static string getAssetsPath(UnityEngine.Object sourceAsset)
+    public static string getAssetsPath(Object sourceAsset)
     {
-        string path = "";
+        var path = "";
         try
         {
             path = AssetDatabase.GetAssetPath(sourceAsset).Replace(sourceAsset.name + ".asset", "");
@@ -107,6 +111,7 @@ public class MAPTools_Utils : MonoBehaviour
         {
             path = "";
         }
+
         return path;
     }
 
@@ -114,7 +119,6 @@ public class MAPTools_Utils : MonoBehaviour
     public static string shortenAssetPath(string path)
     {
         if (!path.StartsWith("Assets/"))
-        {
             try
             {
                 path = path.Substring(path.IndexOf("Assets/"));
@@ -123,14 +127,13 @@ public class MAPTools_Utils : MonoBehaviour
             {
                 path = "";
             }
-        }
+
         return path;
     }
 
     public static string stripAssetPath(string path)
     {
         if (path.StartsWith("Assets/"))
-        {
             try
             {
                 path = path.Replace("Assets/", "");
@@ -139,7 +142,7 @@ public class MAPTools_Utils : MonoBehaviour
             {
                 path = "";
             }
-        }
+
         return path;
     }
 
@@ -152,22 +155,19 @@ public class MAPTools_Utils : MonoBehaviour
 
     public static void addLayer(string layerName)
     {
-        SerializedObject tagManeger = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
-        SerializedProperty layerProperty = tagManeger.FindProperty("layers");
+        var tagManeger = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
+        var layerProperty = tagManeger.FindProperty("layers");
 
 
-        for (int i = 8; i < layerProperty.arraySize; i++)
+        for (var i = 8; i < layerProperty.arraySize; i++)
         {
-            SerializedProperty t = layerProperty.GetArrayElementAtIndex(i);
-            if (t.stringValue == layerName)
-            {
-                return;
-            }
+            var t = layerProperty.GetArrayElementAtIndex(i);
+            if (t.stringValue == layerName) return;
         }
 
-        for (int i = 8; i < layerProperty.arraySize; i++)
+        for (var i = 8; i < layerProperty.arraySize; i++)
         {
-            SerializedProperty sp = layerProperty.GetArrayElementAtIndex(i);
+            var sp = layerProperty.GetArrayElementAtIndex(i);
             if (sp.stringValue == "")
             {
                 sp.stringValue = layerName;
@@ -179,23 +179,18 @@ public class MAPTools_Utils : MonoBehaviour
 
     public static void addTag(string tagname)
     {
-        SerializedObject tagManeger = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManeger.asset")[0]);
-        SerializedProperty tagsProp = tagManeger.FindProperty("trgs");
-        for (int i = 0; i < tagsProp.arraySize; i++)
+        var tagManeger = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManeger.asset")[0]);
+        var tagsProp = tagManeger.FindProperty("trgs");
+        for (var i = 0; i < tagsProp.arraySize; i++)
         {
-            SerializedProperty t = tagsProp.GetArrayElementAtIndex(i);
+            var t = tagsProp.GetArrayElementAtIndex(i);
 
-            if (t.stringValue.Equals(tagname))
-            {
-                return;
-            }
+            if (t.stringValue.Equals(tagname)) return;
         }
+
         tagsProp.InsertArrayElementAtIndex(0);
-        SerializedProperty ll = tagsProp.GetArrayElementAtIndex(0);
+        var ll = tagsProp.GetArrayElementAtIndex(0);
         ll.stringValue = tagname;
         tagManeger.ApplyModifiedProperties();
     }
-
-
-
 }

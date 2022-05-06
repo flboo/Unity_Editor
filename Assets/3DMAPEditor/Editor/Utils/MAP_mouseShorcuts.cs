@@ -1,5 +1,5 @@
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
 public class MAP_mouseShorcuts : EditorWindow
 {
@@ -13,24 +13,20 @@ public class MAP_mouseShorcuts : EditorWindow
                 if (!MAP_Editor.editorPreferences.twoPointFiveDMode)
                 {
                     if (Event.current.delta.y - Event.current.delta.x >= 0f)
-                    {
-                        MAP_Editor.gridHeight += MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
-                    }
+                        MAP_Editor.gridHeight +=
+                            MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
                     else
-                    {
-                        MAP_Editor.gridHeight -= MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
-                    }
+                        MAP_Editor.gridHeight -=
+                            MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
                 }
                 else
                 {
                     if (Event.current.delta.y - Event.current.delta.x >= 0f)
-                    {
-                        MAP_Editor.gridHeight -= MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
-                    }
+                        MAP_Editor.gridHeight -=
+                            MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
                     else
-                    {
-                        MAP_Editor.gridHeight += MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
-                    }
+                        MAP_Editor.gridHeight +=
+                            MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
                 }
             }
             else
@@ -38,28 +34,24 @@ public class MAP_mouseShorcuts : EditorWindow
                 if (!MAP_Editor.editorPreferences.twoPointFiveDMode)
                 {
                     if (Event.current.delta.y - Event.current.delta.x >= 0f)
-                    {
-                        MAP_Editor.gridHeight -= MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
-                    }
+                        MAP_Editor.gridHeight -=
+                            MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
                     else
-                    {
-                        MAP_Editor.gridHeight += MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
-                    }
+                        MAP_Editor.gridHeight +=
+                            MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
                 }
                 else
                 {
                     if (Event.current.delta.y - Event.current.delta.x >= 0f)
-                    {
-                        MAP_Editor.gridHeight += MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
-                    }
+                        MAP_Editor.gridHeight +=
+                            MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
                     else
-                    {
-                        MAP_Editor.gridHeight -= MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
-                    }
+                        MAP_Editor.gridHeight -=
+                            MAP_Editor.globalScale * MAP_Editor.editorPreferences.gridLayerHeightScaler;
                 }
             }
-
         }
+
         if (mouseEvent.type == EventType.ScrollWheel && mouseEvent.shift && mouseEvent.alt && !mouseEvent.control)
         {
             mouseEvent.Use();
@@ -67,41 +59,30 @@ public class MAP_mouseShorcuts : EditorWindow
             if (!MAP_Editor.editorPreferences.invertMouseWheel)
             {
                 if (Event.current.delta.y - Event.current.delta.x >= 0f)
-                {
-                    MAP_Editor.gridHeight += (MAP_Editor.globalScale * 0.25f);
-                }
+                    MAP_Editor.gridHeight += MAP_Editor.globalScale * 0.25f;
                 else
-                {
-                    MAP_Editor.gridHeight -= (MAP_Editor.globalScale * 0.25f);
-                }
+                    MAP_Editor.gridHeight -= MAP_Editor.globalScale * 0.25f;
             }
             else
             {
                 if (Event.current.delta.y - Event.current.delta.x >= 0f)
-                {
-                    MAP_Editor.gridHeight -= (MAP_Editor.globalScale * 0.25f);
-                }
+                    MAP_Editor.gridHeight -= MAP_Editor.globalScale * 0.25f;
                 else
-                {
-                    MAP_Editor.gridHeight += (MAP_Editor.globalScale * 0.25f);
-                }
+                    MAP_Editor.gridHeight += MAP_Editor.globalScale * 0.25f;
             }
-
         }
-        else if (mouseEvent.type == EventType.ScrollWheel && mouseEvent.control && mouseEvent.alt && MAP_Editor.selectTool == eToolIcons.brushTool)
+        else if (mouseEvent.type == EventType.ScrollWheel && mouseEvent.control && mouseEvent.alt &&
+                 MAP_Editor.selectTool == eToolIcons.brushTool)
         {
             mouseEvent.Use();
 
             if (Event.current.delta.y - Event.current.delta.x >= 0f)
-            {
                 MAP_Editor.tileRotation += 90f;
-            }
             else
-            {
                 MAP_Editor.tileRotation -= 90f;
-            }
         }
-        else if (mouseEvent.type == EventType.ScrollWheel && mouseEvent.control && mouseEvent.shift == true && MAP_Editor.selectTool == eToolIcons.brushTool)
+        else if (mouseEvent.type == EventType.ScrollWheel && mouseEvent.control && mouseEvent.shift &&
+                 MAP_Editor.selectTool == eToolIcons.brushTool)
         {
             mouseEvent.Use();
 
@@ -114,25 +95,22 @@ public class MAP_mouseShorcuts : EditorWindow
                     MAP_Editor.currentBrushIndex++;
 
                     if (MAP_Editor.currentBrushIndex >= MAP_Editor.currentTileSetObjects.Length)
-                    {
                         MAP_Editor.currentBrushIndex = MAP_Editor.currentTileSetObjects.Length - 1;
-                    }
 
                     MAP_Editor.currentTile = MAP_Editor.currentTileSetObjects[MAP_Editor.currentBrushIndex];
-                    MAP_Editor.currentTile.transform.eulerAngles = new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
+                    MAP_Editor.currentTile.transform.eulerAngles =
+                        new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
                     MAP_brushFunctions.updateBrushTile();
                 }
                 else
                 {
                     MAP_Editor.currentBrushIndex--;
 
-                    if (MAP_Editor.currentBrushIndex < 0)
-                    {
-                        MAP_Editor.currentBrushIndex = 0;
-                    }
+                    if (MAP_Editor.currentBrushIndex < 0) MAP_Editor.currentBrushIndex = 0;
 
                     MAP_Editor.currentTile = MAP_Editor.currentTileSetObjects[MAP_Editor.currentBrushIndex];
-                    MAP_Editor.currentTile.transform.eulerAngles = new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
+                    MAP_Editor.currentTile.transform.eulerAngles =
+                        new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
                     MAP_brushFunctions.updateBrushTile();
                 }
             }
@@ -143,25 +121,22 @@ public class MAP_mouseShorcuts : EditorWindow
                     MAP_Editor.currentBrushIndex++;
 
                     if (MAP_Editor.currentBrushIndex >= MAP_Editor.currentTileSetObjects.Length)
-                    {
                         MAP_Editor.currentBrushIndex = MAP_Editor.currentTileSetObjects.Length - 1;
-                    }
 
                     MAP_Editor.currentTile = MAP_Editor.currentTileSetObjects[MAP_Editor.currentBrushIndex];
-                    MAP_Editor.currentTile.transform.eulerAngles = new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
+                    MAP_Editor.currentTile.transform.eulerAngles =
+                        new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
                     MAP_brushFunctions.updateBrushTile();
                 }
                 else
                 {
                     MAP_Editor.currentBrushIndex--;
 
-                    if (MAP_Editor.currentBrushIndex < 0)
-                    {
-                        MAP_Editor.currentBrushIndex = 0;
-                    }
+                    if (MAP_Editor.currentBrushIndex < 0) MAP_Editor.currentBrushIndex = 0;
 
                     MAP_Editor.currentTile = MAP_Editor.currentTileSetObjects[MAP_Editor.currentBrushIndex];
-                    MAP_Editor.currentTile.transform.eulerAngles = new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
+                    MAP_Editor.currentTile.transform.eulerAngles =
+                        new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
                     MAP_brushFunctions.updateBrushTile();
                 }
             }

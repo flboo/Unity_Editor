@@ -1,26 +1,19 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
 using UnityEditor;
-using System.Collections.Generic;
+using UnityEngine;
 
 public class MAP_swapTilesets : EditorWindow
 {
-    static bool doSwap = false;
-    static int swapTileSetIndex = 0;
-    static GameObject[] swapTileSetObjects;
+    private static bool doSwap;
+    private static int swapTileSetIndex;
+    private static GameObject[] swapTileSetObjects;
 
-    [MenuItem("Window/Yuponic/Utils/Swap Tilesets")]
-    static void Initialize()
-    {
-        MAP_swapTilesets swapTIlesetsEditorWindow = EditorWindow.GetWindow<MAP_swapTilesets>(true, "Swap Tilesets");
-        swapTIlesetsEditorWindow.titleContent.text = "Swap Tilesets";
-    }
-
-    void OnEnable()
+    private void OnEnable()
     {
         MAP_Editor.importTileSets(false);
     }
 
-    void OnGUI()
+    private void OnGUI()
     {
         EditorGUILayout.BeginVertical("box");
 
@@ -41,12 +34,19 @@ public class MAP_swapTilesets : EditorWindow
         doSwap = false;
     }
 
-    static void swapTileSet()
+    [MenuItem("Window/Yuponic/Utils/Swap Tilesets")]
+    private static void Initialize()
     {
-        string path = MAPTools_Utils.getAssetsPath(MAP_Editor.availableTileSets[swapTileSetIndex]);
+        var swapTIlesetsEditorWindow = GetWindow<MAP_swapTilesets>(true, "Swap Tilesets");
+        swapTIlesetsEditorWindow.titleContent.text = "Swap Tilesets";
+    }
+
+    private static void swapTileSet()
+    {
+        var path = MAPTools_Utils.getAssetsPath(MAP_Editor.availableTileSets[swapTileSetIndex]);
         swapTileSetObjects = MAPTools_Utils.loadDirectoryContents(path, "*.prefab");
 
-        List<GameObject> layerTiles = new List<GameObject>();
+        var layerTiles = new List<GameObject>();
 
         if (swapTileSetObjects != null)
         {
@@ -57,35 +57,28 @@ public class MAP_swapTilesets : EditorWindow
                 Undo.RegisterFullObjectHierarchyUndo(MAP_Editor.tileMapParent, "Swap Tiles");
 
                 foreach (Transform layer in MAP_Editor.tileMapParent.transform)
-                {
                     if (layer.gameObject.name.Contains("layer"))
                     {
                         layerTiles.Clear();
 
-                        foreach (Transform tile in layer)
-                        {
-                            layerTiles.Add(tile.gameObject);
-                        }
+                        foreach (Transform tile in layer) layerTiles.Add(tile.gameObject);
 
-                        for (int i = 0; i < layerTiles.Count; i++)
-                        {
-                            for (int swap = 0; swap < swapTileSetObjects.Length; swap++)
+                        for (var i = 0; i < layerTiles.Count; i++)
+                        for (var swap = 0; swap < swapTileSetObjects.Length; swap++)
+                            if (layerTiles[i].name == swapTileSetObjects[swap].name)
                             {
-                                if (layerTiles[i].name == swapTileSetObjects[swap].name)
-                                {
-                                    EditorUtility.DisplayProgressBar("Swapping Tileset", layerTiles[i].name, (float)i / (float)layerTiles.Count);
-                                    swapTile = PrefabUtility.InstantiatePrefab(swapTileSetObjects[swap] as GameObject) as GameObject;
-                                    swapTile.transform.parent = layer;
-                                    swapTile.transform.position = layerTiles[i].transform.position;
-                                    swapTile.transform.eulerAngles = layerTiles[i].transform.eulerAngles;
-                                    swapTile.transform.GetChild(0).transform.position = layerTiles[i].transform.GetChild(0).transform.position;
-                                    DestroyImmediate(layerTiles[i]);
-                                    break;
-                                }
+                                EditorUtility.DisplayProgressBar("Swapping Tileset", layerTiles[i].name,
+                                    i / (float)layerTiles.Count);
+                                swapTile = PrefabUtility.InstantiatePrefab(swapTileSetObjects[swap]) as GameObject;
+                                swapTile.transform.parent = layer;
+                                swapTile.transform.position = layerTiles[i].transform.position;
+                                swapTile.transform.eulerAngles = layerTiles[i].transform.eulerAngles;
+                                swapTile.transform.GetChild(0).transform.position =
+                                    layerTiles[i].transform.GetChild(0).transform.position;
+                                DestroyImmediate(layerTiles[i]);
+                                break;
                             }
-                        }
                     }
-                }
             }
         }
     }

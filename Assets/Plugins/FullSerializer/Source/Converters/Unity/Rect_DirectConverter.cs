@@ -1,17 +1,23 @@
 #if !NO_UNITY
 using System;
 using System.Collections.Generic;
+using FullSerializer.Internal.DirectConverters;
 using UnityEngine;
 
-namespace FullSerializer {
-    partial class fsConverterRegistrar {
-        public static Internal.DirectConverters.Rect_DirectConverter Register_Rect_DirectConverter;
+namespace FullSerializer
+{
+    partial class fsConverterRegistrar
+    {
+        public static Rect_DirectConverter Register_Rect_DirectConverter;
     }
 }
 
-namespace FullSerializer.Internal.DirectConverters {
-    public class Rect_DirectConverter : fsDirectConverter<Rect> {
-        protected override fsResult DoSerialize(Rect model, Dictionary<string, fsData> serialized) {
+namespace FullSerializer.Internal.DirectConverters
+{
+    public class Rect_DirectConverter : fsDirectConverter<Rect>
+    {
+        protected override fsResult DoSerialize(Rect model, Dictionary<string, fsData> serialized)
+        {
             var result = fsResult.Success;
 
             result += SerializeMember(serialized, null, "xMin", model.xMin);
@@ -22,7 +28,8 @@ namespace FullSerializer.Internal.DirectConverters {
             return result;
         }
 
-        protected override fsResult DoDeserialize(Dictionary<string, fsData> data, ref Rect model) {
+        protected override fsResult DoDeserialize(Dictionary<string, fsData> data, ref Rect model)
+        {
             var result = fsResult.Success;
 
             var t0 = model.xMin;
@@ -44,7 +51,8 @@ namespace FullSerializer.Internal.DirectConverters {
             return result;
         }
 
-        public override object CreateInstance(fsData data, Type storageType) {
+        public override object CreateInstance(fsData data, Type storageType)
+        {
             return new Rect();
         }
     }

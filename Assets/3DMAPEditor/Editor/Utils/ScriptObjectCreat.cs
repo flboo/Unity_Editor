@@ -1,17 +1,16 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using System.IO;
+﻿using System.IO;
 using UnityEditor;
+using UnityEngine;
+
 public class ScriptObjectCreat : EditorWindow
 {
-    private static string savePath = "Assets/ScriptableObject";
+    private static readonly string savePath = "Assets/ScriptableObject";
 
     [MenuItem("MAP/ScriptObject/editor_data")]
     public static void CreateTestAsset()
     {
         //创建数据
-        MAP_EditorData editorData = ScriptableObject.CreateInstance<MAP_EditorData>();
+        var editorData = CreateInstance<MAP_EditorData>();
         //赋值
         editorData.name = "MAP_EditorData";
 
@@ -20,16 +19,17 @@ public class ScriptObjectCreat : EditorWindow
             Directory.CreateDirectory(savePath);
 
         //删除原有文件，生成新文件
-        string fullPath = savePath + "/" + "editor_Data.asset";
-        UnityEditor.AssetDatabase.DeleteAsset(fullPath);
-        UnityEditor.AssetDatabase.CreateAsset(editorData, fullPath);
-        UnityEditor.AssetDatabase.Refresh();
+        var fullPath = savePath + "/" + "editor_Data.asset";
+        AssetDatabase.DeleteAsset(fullPath);
+        AssetDatabase.CreateAsset(editorData, fullPath);
+        AssetDatabase.Refresh();
     }
+
     [MenuItem("MAP/ScriptObject/prefrence_data")]
     public static void CreatePrefrencesAsset()
     {
         //创建数据
-        MAP_editorPreferences editorData = ScriptableObject.CreateInstance<MAP_editorPreferences>();
+        var editorData = CreateInstance<MAP_editorPreferences>();
         //赋值
         editorData.name = "map_editorPreferences";
 
@@ -38,10 +38,10 @@ public class ScriptObjectCreat : EditorWindow
             Directory.CreateDirectory(savePath);
 
         //删除原有文件，生成新文件
-        string fullPath = savePath + "/" + "preference_data.asset";
-        UnityEditor.AssetDatabase.DeleteAsset(fullPath);
-        UnityEditor.AssetDatabase.CreateAsset(editorData, fullPath);
-        UnityEditor.AssetDatabase.Refresh();
+        var fullPath = savePath + "/" + "preference_data.asset";
+        AssetDatabase.DeleteAsset(fullPath);
+        AssetDatabase.CreateAsset(editorData, fullPath);
+        AssetDatabase.Refresh();
     }
 
     [MenuItem("MAP/ScriptObject/tileset_data")]
@@ -49,21 +49,19 @@ public class ScriptObjectCreat : EditorWindow
     {
         //说明  这个.asset不要放在创建的目录下  详情参考  TileTestObject01目录
         //创建数据
-        MAP_tilesetData editorData = ScriptableObject.CreateInstance<MAP_tilesetData>();
+        var editorData = CreateInstance<MAP_tilesetData>();
         editorData.name = "tileset_data";
         CreatAssetData(editorData);
     }
 
-    private static void CreatAssetData(UnityEngine.Object asset)
+    private static void CreatAssetData(Object asset)
     {
         if (!Directory.Exists(savePath))
             Directory.CreateDirectory(savePath);
         //删除原有文件，生成新文件
-        string fullPath = savePath + "/" + asset.name + ".asset";
-        UnityEditor.AssetDatabase.DeleteAsset(fullPath);
-        UnityEditor.AssetDatabase.CreateAsset(asset, fullPath);
-        UnityEditor.AssetDatabase.Refresh();
+        var fullPath = savePath + "/" + asset.name + ".asset";
+        AssetDatabase.DeleteAsset(fullPath);
+        AssetDatabase.CreateAsset(asset, fullPath);
+        AssetDatabase.Refresh();
     }
-
-
 }

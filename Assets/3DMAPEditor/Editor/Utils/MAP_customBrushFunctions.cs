@@ -1,17 +1,17 @@
-using UnityEngine;
-using UnityEditor;
-using System.Collections.Generic;
 using System;
-using UnityEditor.SceneManagement;
+using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
 
 public class MAP_customBrushFunctions : EditorWindow
 {
-    static int subMeshCount = 0;
+    private static int subMeshCount;
 
     public static void createCustomBrush()
     {
-        YuME_customBrushNameDialog customBrushDialog = EditorWindow.GetWindow<YuME_customBrushNameDialog>(true, Define.CUSTOM_BTUSH_NAME);
+        var customBrushDialog = GetWindow<YuME_customBrushNameDialog>(true, Define.CUSTOM_BTUSH_NAME);
         customBrushDialog.titleContent.text = Define.CUSTOM_BTUSH_NAME;
     }
 
@@ -21,67 +21,64 @@ public class MAP_customBrushFunctions : EditorWindow
 
         MAP_tileFunctions.checkTileSelectionStatus();
 
-        GameObject tileParentObject = new GameObject();
+        var tileParentObject = new GameObject();
         tileParentObject.AddComponent<MAP_tileGizmo>();
         tileParentObject.GetComponent<MAP_tileGizmo>().customBrushMeshName = new List<string>();
 
-        string customBrushGUID = Guid.NewGuid().ToString("N");
+        var customBrushGUID = Guid.NewGuid().ToString("N");
 
         tileParentObject.name = customBrushName + Define.MAP_PREFAB;
 
-        string destinationPath = MAPTools_Utils.getAssetsPath(MAP_Editor.availableTileSets[MAP_Editor.currentTileSetIndex]) + Define.CUSTOM_BRUSHFES + "/";
+        var destinationPath =
+            MAPTools_Utils.getAssetsPath(MAP_Editor.availableTileSets[MAP_Editor.currentTileSetIndex]) +
+            Define.CUSTOM_BRUSHFES + "/";
 
         if (MAP_Editor.selectTiles.Count > 0)
         {
             // When creating a custom brush we need to find the lowest Z transform in the selection to become the pivot transform
-            GameObject bottomLevelOfSelection = MAP_Editor.selectTiles[0];
+            var bottomLevelOfSelection = MAP_Editor.selectTiles[0];
 
-            foreach (GameObject checkObjects in MAP_Editor.selectTiles)
-            {
+            foreach (var checkObjects in MAP_Editor.selectTiles)
                 if (checkObjects.transform.position.z < bottomLevelOfSelection.transform.position.z)
-                {
                     bottomLevelOfSelection = checkObjects;
-                }
-            }
 
             // center the parent object around the lowest block to make sure all the selected brushes are centered around the parent
             tileParentObject.transform.position = bottomLevelOfSelection.transform.position;
 
             // New Custom Brush implementation. Uses a technique similar to the freeze map, except for selected tils
 
-            List<GameObject> tilesToCombine = new List<GameObject>();
-            List<Transform> _freezeTiles = new List<Transform>();
-            List<Transform> freezeTiles = new List<Transform>();
+            var tilesToCombine = new List<GameObject>();
+            var _freezeTiles = new List<Transform>();
+            var freezeTiles = new List<Transform>();
 
-            foreach (GameObject tile in MAP_Editor.selectTiles)
+            foreach (var tile in MAP_Editor.selectTiles)
             {
-                tile.GetComponentsInChildren<Transform>(false, _freezeTiles);
+                tile.GetComponentsInChildren(false, _freezeTiles);
                 freezeTiles.AddRange(_freezeTiles);
             }
 
-            foreach (Transform tile in freezeTiles)
-            {
+            foreach (var tile in freezeTiles)
                 if (tile.GetComponent<MeshRenderer>())
                     tilesToCombine.Add(tile.gameObject);
-            }
 
             tilesToCombine = tilesToCombine.OrderBy(x => x.GetComponent<MeshRenderer>().sharedMaterial.name).ToList();
 
-            Material previousMaterial = tilesToCombine[0].GetComponent<MeshRenderer>().sharedMaterial;
+            var previousMaterial = tilesToCombine[0].GetComponent<MeshRenderer>().sharedMaterial;
 
-            List<CombineInstance> combine = new List<CombineInstance>();
-            CombineInstance tempCombine = new CombineInstance();
+            var combine = new List<CombineInstance>();
+            var tempCombine = new CombineInstance();
 
-            int vertexCount = 0;
+            var vertexCount = 0;
 
-            foreach (GameObject mesh in tilesToCombine)
+            foreach (var mesh in tilesToCombine)
             {
                 vertexCount += mesh.GetComponent<MeshFilter>().sharedMesh.vertexCount;
 
                 if (vertexCount > 60000)
                 {
                     vertexCount = 0;
-                    newSubMesh(combine, mesh.GetComponent<MeshRenderer>().sharedMaterial, tileParentObject, destinationPath, customBrushGUID);
+                    newSubMesh(combine, mesh.GetComponent<MeshRenderer>().sharedMaterial, tileParentObject,
+                        destinationPath, customBrushGUID);
                     combine = new List<CombineInstance>();
                 }
 
@@ -123,18 +120,20 @@ public class MAP_customBrushFunctions : EditorWindow
         }
     }
 
-    static void newSubMesh(List<CombineInstance> combine, Material mat, GameObject tileParentObject, string destinationPath, string customBrushGUID)
+    private static void newSubMesh(List<CombineInstance> combine, Material mat, GameObject tileParentObject,
+        string destinationPath, string customBrushGUID)
     {
-        GameObject subMesh = new GameObject();
+        var subMesh = new GameObject();
         subMesh.transform.parent = tileParentObject.transform;
-        subMesh.name = tileParentObject.name.Replace(Define.MAP_PREFAB, "") + "SubMesh" + subMeshCount + customBrushGUID;
+        subMesh.name = tileParentObject.name.Replace(Define.MAP_PREFAB, "") + "SubMesh" + subMeshCount +
+                       customBrushGUID;
         subMesh.isStatic = false;
 
-        MeshFilter subMeshFilter = subMesh.AddComponent<MeshFilter>();
+        var subMeshFilter = subMesh.AddComponent<MeshFilter>();
         subMeshFilter.sharedMesh = new Mesh();
         subMeshFilter.sharedMesh.CombineMeshes(combine.ToArray());
 
-        MeshRenderer meshRenderer = subMesh.AddComponent<MeshRenderer>();
+        var meshRenderer = subMesh.AddComponent<MeshRenderer>();
         meshRenderer.sharedMaterial = mat;
 
         subMesh.AddComponent<MeshCollider>().sharedMesh = subMeshFilter.sharedMesh;
@@ -150,13 +149,9 @@ public class MAP_customBrushFunctions : EditorWindow
 
     public static GameObject getPrefabFromCurrentTiles(GameObject source)
     {
-        foreach (GameObject tile in MAP_Editor.currentTileSetObjects)
-        {
+        foreach (var tile in MAP_Editor.currentTileSetObjects)
             if (tile.name == source.name)
-            {
                 return tile;
-            }
-        }
 
         return null;
     }
@@ -167,14 +162,14 @@ public class MAP_customBrushFunctions : EditorWindow
     public static void pasteCustomBrush(Vector3 position)
     {
         if (MAP_Editor.brushTile != null)
-        {
             if (MAP_Editor.findTileMapParent())
             {
-                int badTileCount = 0;
+                var badTileCount = 0;
 
                 foreach (Transform child in MAP_Editor.brushTile.transform)
                 {
-                    GameObject pasteTile = PrefabUtility.InstantiatePrefab(getPrefabFromCurrentTiles(child.gameObject) as GameObject) as GameObject;
+                    var pasteTile =
+                        PrefabUtility.InstantiatePrefab(getPrefabFromCurrentTiles(child.gameObject)) as GameObject;
 
                     if (pasteTile != null)
                     {
@@ -184,7 +179,6 @@ public class MAP_customBrushFunctions : EditorWindow
                         pasteTile.transform.position = child.position;
                         pasteTile.transform.localScale = child.transform.lossyScale;
                         pasteTile.transform.SetParent(MAP_Editor.mapLayers[MAP_Editor.currentLayer - 1].transform);
-
                     }
                     else
                     {
@@ -193,13 +187,11 @@ public class MAP_customBrushFunctions : EditorWindow
                 }
 
                 if (badTileCount > 0)
-                {
-                    Debug.Log("Custom Brush includes tiles from a different tile set. These tiles will not appear in the scene due to the lack of nested prefabs in Unity.");
-                }
+                    Debug.Log(
+                        "Custom Brush includes tiles from a different tile set. These tiles will not appear in the scene due to the lack of nested prefabs in Unity.");
 
                 EditorSceneManager.MarkAllScenesDirty();
             }
-        }
     }
 
 
@@ -211,17 +203,15 @@ public class MAP_customBrushFunctions : EditorWindow
         {
             MAP_Editor.currentBrushType = eBrushTypes.copyBrush;
 
-            if (MAP_Editor.brushTile != null)
-            {
-                DestroyImmediate(MAP_Editor.brushTile);
-            }
+            if (MAP_Editor.brushTile != null) DestroyImmediate(MAP_Editor.brushTile);
 
             if (MAP_Editor.findTileMapParent())
             {
                 Undo.RegisterFullObjectHierarchyUndo(MAP_Editor.tileMapParent, "Create Brush");
 
                 MAP_Editor.brushTile = new GameObject();
-                MAP_Editor.brushTile.transform.eulerAngles = new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
+                MAP_Editor.brushTile.transform.eulerAngles =
+                    new Vector3(MAP_Editor.tileRotationX, MAP_Editor.tileRotation, 0f);
                 MAP_Editor.brushTile.transform.parent = MAP_Editor.tileMapParent.transform;
                 MAP_Editor.brushTile.name = "YuME_brushTile";
 
@@ -229,12 +219,15 @@ public class MAP_customBrushFunctions : EditorWindow
 
                 MAP_Editor.tileChildObjects.Clear();
 
-                foreach (GameObject tile in MAP_Editor.selectTiles)
+                foreach (var tile in MAP_Editor.selectTiles)
                 {
 #if UNITY_2018_3_OR_NEWER
-                    GameObject tempTile = (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetCorrespondingObjectFromSource(tile) as GameObject);
+                    var tempTile =
+                        (GameObject)PrefabUtility.InstantiatePrefab(
+                            PrefabUtility.GetCorrespondingObjectFromSource(tile));
 #else
-                    GameObject tempTile = (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetPrefabParent(tile) as GameObject);
+                    GameObject tempTile =
+ (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetPrefabParent(tile) as GameObject);
 #endif
                     tempTile.transform.parent = MAP_Editor.brushTile.transform;
                     tempTile.transform.position = tile.transform.position;
@@ -243,10 +236,7 @@ public class MAP_customBrushFunctions : EditorWindow
 
                     MAP_Editor.tileChildObjects.Add(tempTile);
 
-                    if (destroySourceTiles)
-                    {
-                        DestroyImmediate(tile);
-                    }
+                    if (destroySourceTiles) DestroyImmediate(tile);
                 }
 
                 MAP_Editor.selectTiles.Clear();
@@ -259,26 +249,27 @@ public class MAP_customBrushFunctions : EditorWindow
     public static void pasteCopyBrush(Vector3 position)
     {
         if (MAP_Editor.brushTile != null)
-        {
             if (MAP_Editor.findTileMapParent())
             {
                 Undo.RegisterFullObjectHierarchyUndo(MAP_Editor.tileMapParent, Define.PAINT_BRUSH);
 
                 foreach (Transform child in MAP_Editor.brushTile.transform)
                 {
-                    GameObject pasteTile = (GameObject)PrefabUtility.InstantiatePrefab(PrefabUtility.GetCorrespondingObjectFromSource(child.gameObject) as GameObject);
+                    var pasteTile =
+                        (GameObject)PrefabUtility.InstantiatePrefab(
+                            PrefabUtility.GetCorrespondingObjectFromSource(child.gameObject));
                     MAP_tileFunctions.eraseTile(child.position);
                     pasteTile.transform.eulerAngles = child.eulerAngles;
                     pasteTile.transform.position = normalizePosition(child.position);
                     pasteTile.transform.localScale = child.transform.lossyScale;
                     pasteTile.transform.parent = MAP_Editor.mapLayers[MAP_Editor.currentLayer - 1].transform;
                 }
+
                 EditorSceneManager.MarkAllScenesDirty();
             }
-        }
     }
 
-    static Vector3 normalizePosition(Vector3 position)
+    private static Vector3 normalizePosition(Vector3 position)
     {
         position.x = (float)Math.Round(position.x * 4, MidpointRounding.ToEven) / 4;
         position.y = (float)Math.Round(position.y * 4, MidpointRounding.ToEven) / 4;
@@ -287,7 +278,3 @@ public class MAP_customBrushFunctions : EditorWindow
         return position;
     }
 }
-
-
-
-

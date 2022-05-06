@@ -2,41 +2,40 @@
 
 public class MAP_GizmoGrid : MonoBehaviour
 {
-    [HideInInspector]
-    public float tileSize = 1;
+    [HideInInspector] public float tileSize = 1;
+
     public int gridWidth = 40;
     public int gridDepth = 40;
-    [HideInInspector]
-    public bool twoPointFiveDMode = false;
 
-    [HideInInspector]
-    public bool centreGrid = true;
-    private float _gridHeight = 0;
-    bool _toolEnable = true;
-    [HideInInspector]
-    public float gridHeight { get { return _gridHeight; } set { _gridHeight = value; } }
+    [HideInInspector] public bool twoPointFiveDMode;
 
-    [HideInInspector]
-    public bool toolEnable { get { return _toolEnable; } set { _toolEnable = value; } }
+    [HideInInspector] public bool centreGrid = true;
+
     public float gridOffset = 0.01f;
-    private float tileOffset = 0.5f;
-    [HideInInspector]
-    public Color gridColorNormal = Color.white;
-    [HideInInspector]
-    public Color gridColorBorder = Color.green;
-    [HideInInspector]
-    public Color gridColorFill = new Color(1, 0, 0, 0.5f);
-    private float gridWidthOffset;
-    private float gridDepthOffset;
+
+    [HideInInspector] public Color gridColorNormal = Color.white;
+
+    [HideInInspector] public Color gridColorBorder = Color.green;
+
+    [HideInInspector] public Color gridColorFill = new(1, 0, 0, 0.5f);
+
     private Vector3 gridColliderPosition;
-    private Vector3 gridMin;
+    private float gridDepthOffset;
     private Vector3 gridMax;
-    void OnEnable()
+    private Vector3 gridMin;
+    private float gridWidthOffset;
+    private float tileOffset = 0.5f;
+
+    [HideInInspector] public float gridHeight { get; set; }
+
+    [HideInInspector] public bool toolEnable { get; set; } = true;
+
+    private void OnEnable()
     {
         gameObject.SetActive(false);
     }
 
-    void OnDrawGizmos()
+    private void OnDrawGizmos()
     {
         if (toolEnable)
         {
@@ -53,11 +52,12 @@ public class MAP_GizmoGrid : MonoBehaviour
                     gridWidthOffset = 0;
                     gridDepthOffset = 0;
                 }
+
                 gridMin.x = gameObject.transform.position.x - gridWidthOffset - tileOffset;
                 gridMin.z = gameObject.transform.position.z + gridHeight - gridOffset + tileOffset;
                 gridMin.y = gameObject.transform.position.y - gridDepthOffset - tileOffset;
-                gridMax.x = gridMin.x + (tileSize * gridWidth);
-                gridMax.y = gridMin.y + (tileSize * gridDepth);
+                gridMax.x = gridMin.x + tileSize * gridWidth;
+                gridMax.y = gridMin.y + tileSize * gridDepth;
                 gridMax.z = gridMin.z;
             }
             else
@@ -73,13 +73,15 @@ public class MAP_GizmoGrid : MonoBehaviour
                     gridWidthOffset = 0;
                     gridDepthOffset = 0;
                 }
+
                 gridMin.x = gameObject.transform.position.x - gridWidthOffset - tileOffset;
                 gridMin.y = gameObject.transform.position.y + gridHeight - tileOffset - gridOffset;
                 gridMin.z = gameObject.transform.position.z - gridDepthOffset - tileOffset;
-                gridMax.x = gridMin.x + (tileSize * gridWidth);
-                gridMax.z = gridMin.z + (tileSize * gridDepth);
+                gridMax.x = gridMin.x + tileSize * gridWidth;
+                gridMax.z = gridMin.z + tileSize * gridDepth;
                 gridMax.y = gridMin.y;
             }
+
             drawGridBase();
             drawMainGrid();
             drawGridBorder();
@@ -93,37 +95,29 @@ public class MAP_GizmoGrid : MonoBehaviour
         if (twoPointFiveDMode)
         {
             if (centreGrid)
-            {
                 Gizmos.DrawCube(
                     new Vector3(gameObject.transform.position.x - tileOffset,
                         gameObject.transform.position.y - tileOffset - gridOffset,
                         gameObject.transform.position.z + gridHeight - gridOffset + tileOffset),
-                    new Vector3((gridWidth * tileSize), (gridDepth * tileSize), 0.01f));
-            }
+                    new Vector3(gridWidth * tileSize, gridDepth * tileSize, 0.01f));
             else
-            {
-                Gizmos.DrawCube(new Vector3(gameObject.transform.position.x + (gridWidth / 2 * tileSize) - tileOffset,
-                        gameObject.transform.position.y + (gridDepth / 2 * tileSize) - tileOffset - gridOffset,
+                Gizmos.DrawCube(new Vector3(gameObject.transform.position.x + gridWidth / 2 * tileSize - tileOffset,
+                        gameObject.transform.position.y + gridDepth / 2 * tileSize - tileOffset - gridOffset,
                         gameObject.transform.position.z + gridHeight - gridOffset + tileOffset),
-                    new Vector3((gridWidth * tileSize), (gridDepth * tileSize), 0.01f));
-            }
+                    new Vector3(gridWidth * tileSize, gridDepth * tileSize, 0.01f));
         }
         else
         {
             if (centreGrid)
-            {
                 Gizmos.DrawCube(new Vector3(gameObject.transform.position.x - tileOffset,
                         gameObject.transform.position.y + gridHeight - tileOffset - gridOffset,
                         gameObject.transform.position.z - tileOffset),
-                    new Vector3((gridWidth * tileSize), 0.01f, (gridDepth * tileSize)));
-            }
+                    new Vector3(gridWidth * tileSize, 0.01f, gridDepth * tileSize));
             else
-            {
-                Gizmos.DrawCube(new Vector3(gameObject.transform.position.x + (gridWidth / 2 * tileSize) - tileOffset,
+                Gizmos.DrawCube(new Vector3(gameObject.transform.position.x + gridWidth / 2 * tileSize - tileOffset,
                         gameObject.transform.position.y + gridHeight - tileOffset - gridOffset,
-                        gameObject.transform.position.z + (gridDepth / 2 * tileSize) - tileOffset),
-                    new Vector3((gridWidth * tileSize), 0.01f, (gridDepth * tileSize)));
-            }
+                        gameObject.transform.position.z + gridDepth / 2 * tileSize - tileOffset),
+                    new Vector3(gridWidth * tileSize, 0.01f, gridDepth * tileSize));
         }
     }
 
@@ -133,45 +127,29 @@ public class MAP_GizmoGrid : MonoBehaviour
         if (tileSize != 0)
         {
             if (!twoPointFiveDMode)
-            {
-                for (float i = tileSize; i < (gridWidth * tileSize); i += tileSize)
-                {
+                for (var i = tileSize; i < gridWidth * tileSize; i += tileSize)
                     Gizmos.DrawLine(
-                        new Vector3((float)i + gridMin.x, gridMin.y, gridMin.z),
-                        new Vector3((float)i + gridMin.x, gridMin.y, gridMax.z));
-                }
-            }
+                        new Vector3(i + gridMin.x, gridMin.y, gridMin.z),
+                        new Vector3(i + gridMin.x, gridMin.y, gridMax.z));
             else
-            {
-                for (float i = tileSize; i < (gridWidth * tileSize); i += tileSize)
-                {
+                for (var i = tileSize; i < gridWidth * tileSize; i += tileSize)
                     Gizmos.DrawLine(
-                        new Vector3((float)i + gridMin.x, gridMin.y, gridMin.z),
-                        new Vector3((float)i + gridMin.x, gridMax.y, gridMin.z)
+                        new Vector3(i + gridMin.x, gridMin.y, gridMin.z),
+                        new Vector3(i + gridMin.x, gridMax.y, gridMin.z)
                     );
-                }
-            }
             //横竖皆画
             if (!twoPointFiveDMode)
-            {
-                for (float j = tileSize; j < (gridDepth * tileSize); j += tileSize)
-                {
+                for (var j = tileSize; j < gridDepth * tileSize; j += tileSize)
                     Gizmos.DrawLine(
                         new Vector3(gridMin.x, gridMin.y, j + gridMin.z),
                         new Vector3(gridMax.x, gridMin.y, j + gridMin.z)
                     );
-                }
-            }
             else
-            {
-                for (float j = tileSize; j < (gridDepth * tileSize); j += tileSize)
-                {
+                for (var j = tileSize; j < gridDepth * tileSize; j += tileSize)
                     Gizmos.DrawLine(
                         new Vector3(gridMin.x, j + gridMin.y, gridMin.z),
                         new Vector3(gridMax.x, j + gridMin.y, gridMin.z)
                     );
-                }
-            }
         }
     }
 
@@ -210,7 +188,7 @@ public class MAP_GizmoGrid : MonoBehaviour
 
     public void moveGrid()
     {
-        BoxCollider box = gameObject.GetComponent<BoxCollider>();
+        var box = gameObject.GetComponent<BoxCollider>();
         box.enabled = toolEnable;
         gridColliderPosition = box.center;
         if (twoPointFiveDMode)
@@ -243,7 +221,7 @@ public class MAP_GizmoGrid : MonoBehaviour
                 gridColliderPosition.z = gridDepth / 2 * tileSize - tileOffset;
             }
         }
+
         box.center = gridColliderPosition;
     }
-
 }

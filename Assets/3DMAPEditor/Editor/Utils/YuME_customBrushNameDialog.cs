@@ -1,11 +1,11 @@
-using UnityEngine;
 using UnityEditor;
+using UnityEngine;
 
-class MAP_customBrushNameDialog : EditorWindow
+internal class MAP_customBrushNameDialog : EditorWindow
 {
-    string customBrushName;
+    private string customBrushName;
 
-    void OnGUI()
+    private void OnGUI()
     {
         customBrushName = EditorGUILayout.TextField("Custom Brush Name", customBrushName);
 
@@ -16,13 +16,14 @@ class MAP_customBrushNameDialog : EditorWindow
         }
     }
 
-    void OnClickSavePrefab()
+    private void OnClickSavePrefab()
     {
         customBrushName = customBrushName.Trim();
 
         if (string.IsNullOrEmpty(customBrushName))
         {
-            EditorUtility.DisplayDialog("Unable to save custom Brush", "Please specify a valid custom brush name.", "Close");
+            EditorUtility.DisplayDialog("Unable to save custom Brush", "Please specify a valid custom brush name.",
+                "Close");
             return;
         }
 

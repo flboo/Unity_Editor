@@ -1,7 +1,5 @@
-﻿
-public class Define
+﻿public class Define
 {
-
     public const string LAYER_MAP_TILTMAP = "Map_TileMap";
     public const string DATA_MAP_MAPDATA = "Map_MapData";
     public const string CURRENT_MAP_NAME = "currentMapName";

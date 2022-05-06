@@ -1,6 +1,6 @@
-﻿using System.Net;
+﻿using UnityEditor;
 using UnityEngine;
-using UnityEditor;
+
 public class MAP_keyboardShortcuts : EditorWindow
 {
     public static void checkKeyboardShortcuts(Event keyEvent)
@@ -10,18 +10,13 @@ public class MAP_keyboardShortcuts : EditorWindow
 
         if (keyEvent.shift && !keyEvent.control && !keyEvent.alt)
         {
-            if (MAP_Editor.selectTool == eToolIcons.brushTool)
-            {
-                MAP_Editor.eraseToolOverride = true;
-            }
+            if (MAP_Editor.selectTool == eToolIcons.brushTool) MAP_Editor.eraseToolOverride = true;
         }
         else if (keyEvent.control && !keyEvent.alt && !keyEvent.shift)
         {
-            if (MAP_Editor.selectTool == eToolIcons.brushTool)
-            {
-                MAP_Editor.pickToolOverride = false;
-            }
+            if (MAP_Editor.selectTool == eToolIcons.brushTool) MAP_Editor.pickToolOverride = false;
         }
+
         if (keyEvent.type == EventType.KeyDown)
         {
             switch (keyEvent.keyCode)
@@ -43,43 +38,47 @@ public class MAP_keyboardShortcuts : EditorWindow
                     if (MAP_Editor.selectTool == eToolIcons.brushTool || MAP_Editor.selectTool == eToolIcons.eraseTool)
                     {
                         Event.current.Use();
-                        Vector3 newBrushSize = MAP_Editor.brushSize;
+                        var newBrushSize = MAP_Editor.brushSize;
                         newBrushSize.x -= 2;
                         newBrushSize.z -= 2;
                         MAP_Editor.brushSize = newBrushSize;
                         SceneView.RepaintAll();
                     }
+
                     break;
                 case KeyCode.RightBracket:
                     if (MAP_Editor.selectTool == eToolIcons.brushTool || MAP_Editor.selectTool == eToolIcons.eraseTool)
                     {
                         Event.current.Use();
-                        Vector3 newBrushSize = MAP_Editor.brushSize;
+                        var newBrushSize = MAP_Editor.brushSize;
                         newBrushSize.x += 2;
                         newBrushSize.z += 2;
                         MAP_Editor.brushSize = newBrushSize;
                         SceneView.RepaintAll();
                     }
+
                     break;
                 case KeyCode.LeftArrow:
                     if (MAP_Editor.selectTool == eToolIcons.brushTool || MAP_Editor.selectTool == eToolIcons.eraseTool)
                     {
                         Event.current.Use();
-                        Vector3 newBrushSize = MAP_Editor.brushSize;
+                        var newBrushSize = MAP_Editor.brushSize;
                         newBrushSize.x -= 2;
                         MAP_Editor.brushSize = newBrushSize;
                         SceneView.RepaintAll();
                     }
+
                     break;
                 case KeyCode.RightArrow:
                     if (MAP_Editor.selectTool == eToolIcons.brushTool || MAP_Editor.selectTool == eToolIcons.eraseTool)
                     {
                         Event.current.Use();
-                        Vector3 newBrushSize = MAP_Editor.brushSize;
+                        var newBrushSize = MAP_Editor.brushSize;
                         newBrushSize.x += 2;
                         MAP_Editor.brushSize = newBrushSize;
                         SceneView.RepaintAll();
                     }
+
                     break;
                 case KeyCode.DownArrow:
                     if (MAP_Editor.selectTool == eToolIcons.brushTool || MAP_Editor.selectTool == eToolIcons.eraseTool)
@@ -87,7 +86,7 @@ public class MAP_keyboardShortcuts : EditorWindow
                         if (Event.current.shift)
                         {
                             Event.current.Use();
-                            Vector3 newBrushSize = MAP_Editor.brushSize;
+                            var newBrushSize = MAP_Editor.brushSize;
                             newBrushSize.y -= 1;
                             MAP_Editor.brushSize = newBrushSize;
                             SceneView.RepaintAll();
@@ -95,12 +94,13 @@ public class MAP_keyboardShortcuts : EditorWindow
                         else
                         {
                             Event.current.Use();
-                            Vector3 newBrushSize = MAP_Editor.brushSize;
+                            var newBrushSize = MAP_Editor.brushSize;
                             newBrushSize.z -= 2;
                             MAP_Editor.brushSize = newBrushSize;
                             SceneView.RepaintAll();
                         }
                     }
+
                     break;
                 case KeyCode.UpArrow:
                     if (MAP_Editor.selectTool == eToolIcons.brushTool || MAP_Editor.selectTool == eToolIcons.eraseTool)
@@ -108,7 +108,7 @@ public class MAP_keyboardShortcuts : EditorWindow
                         if (Event.current.shift)
                         {
                             Event.current.Use();
-                            Vector3 newBrushSize = MAP_Editor.brushSize;
+                            var newBrushSize = MAP_Editor.brushSize;
                             newBrushSize.y += 1;
                             MAP_Editor.brushSize = newBrushSize;
                             SceneView.RepaintAll();
@@ -116,12 +116,13 @@ public class MAP_keyboardShortcuts : EditorWindow
                         else
                         {
                             Event.current.Use();
-                            Vector3 newBrushSize = MAP_Editor.brushSize;
+                            var newBrushSize = MAP_Editor.brushSize;
                             newBrushSize.z += 2;
                             MAP_Editor.brushSize = newBrushSize;
                             SceneView.RepaintAll();
                         }
                     }
+
                     break;
                 case KeyCode.Return:
                     if (MAP_Editor.selectTool == eToolIcons.brushTool || MAP_Editor.selectTool == eToolIcons.eraseTool)
@@ -138,6 +139,7 @@ public class MAP_keyboardShortcuts : EditorWindow
                         MAP_Editor.selectTiles.Clear();
                         SceneView.RepaintAll();
                     }
+
                     break;
                 case KeyCode.Z:
                     Event.current.Use();
@@ -168,11 +170,13 @@ public class MAP_keyboardShortcuts : EditorWindow
                     MAP_Editor.tileRotationX += 90f;
                     break;
                 case KeyCode.Space:
-                    if (MAP_Editor.selectTool == eToolIcons.selectTool || MAP_Editor.selectTool == eToolIcons.defaultTools)
+                    if (MAP_Editor.selectTool == eToolIcons.selectTool ||
+                        MAP_Editor.selectTool == eToolIcons.defaultTools)
                     {
                         Event.current.Use();
                         MAP_tileFunctions.selectAllTiles();
                     }
+
                     break;
                 case KeyCode.R:
                     if (MAP_Editor.selectTool == eToolIcons.brushTool)
@@ -180,12 +184,12 @@ public class MAP_keyboardShortcuts : EditorWindow
                         Event.current.Use();
                         MAP_Editor.randomRotationMode = !MAP_Editor.randomRotationMode;
                     }
+
                     break;
             }
 
 
             if (!MAP_Editor.editorPreferences.useAlternativeKeyShortcuts)
-            {
                 switch (keyEvent.keyCode)
                 {
                     case KeyCode.A:
@@ -201,9 +205,7 @@ public class MAP_keyboardShortcuts : EditorWindow
                         MAP_Editor.selectTool = eToolIcons.eraseTool;
                         break;
                 }
-            }
             else
-            {
                 switch (keyEvent.keyCode)
                 {
                     case KeyCode.G:
@@ -218,12 +220,7 @@ public class MAP_keyboardShortcuts : EditorWindow
                         Event.current.Use();
                         MAP_Editor.selectTool = eToolIcons.eraseTool;
                         break;
-
                 }
-            }
-
         }
     }
-
-
 }
